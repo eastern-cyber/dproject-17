@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server';
 import sql from '@/lib/db';
 
-// Simpler approach - use any type for context
+// Proper type definition for Next.js 15.5.2
+interface Context {
+  params: Promise<{ user_id: string }>;
+}
+
 export async function GET(
   request: Request,
-  context: any
+  context: Context
 ) {
   if (!sql) {
     return NextResponse.json(
@@ -14,8 +18,9 @@ export async function GET(
   }
 
   try {
-    // Extract user_id from context params
-    const { user_id } = await context.params;
+    // Await the params promise
+    const params = await context.params;
+    const { user_id } = params;
     
     const users = await sql`
       SELECT 
