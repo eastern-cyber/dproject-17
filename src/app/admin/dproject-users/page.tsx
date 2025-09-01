@@ -296,7 +296,7 @@ export default function AdminDashboard() {
                   <td className="px-4 py-2">
                     <button
                       onClick={() => setSelectedUser(user)}
-                      className="text-blue-600 dark:text-blue-400 hover:underline text-sm"
+                      className="text-blue-600 dark:text-blue-400 hover:underline text-sm cursor-pointer"
                     >
                       View Details
                     </button>
@@ -316,35 +316,118 @@ export default function AdminDashboard() {
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-6">
-            <nav className="flex items-center gap-2">
+            <nav className="flex items-center gap-1">
+              {/* First Page Button */}
+              <button
+                onClick={() => handlePageChange(1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                aria-label="First page"
+              >
+                First
+              </button>
+              
+              {/* Previous Page Button */}
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                aria-label="Previous page"
               >
                 Previous
               </button>
               
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`px-3 py-1 rounded-md ${
-                    currentPage === page
-                      ? 'bg-blue-600 text-white'
-                      : 'border border-gray-300 dark:border-gray-600'
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
+              {/* Page number buttons with ellipsis */}
+              {(() => {
+                const maxVisiblePages = 7;
+                const pages = [];
+                
+                let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                
+                // Adjust if we're near the end
+                if (endPage - startPage + 1 < maxVisiblePages) {
+                  startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                }
+                
+                // Add first page and ellipsis if needed
+                if (startPage > 1) {
+                  pages.push(
+                    <button
+                      key={1}
+                      onClick={() => handlePageChange(1)}
+                      className={`px-3 py-1 rounded-md text-sm border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer`}
+                    >
+                      1
+                    </button>
+                  );
+                  if (startPage > 2) {
+                    pages.push(
+                      <span key="ellipsis-start" className="px-2 py-1 text-gray-500">
+                        ...
+                      </span>
+                    );
+                  }
+                }
+                
+                // Add page numbers
+                for (let i = startPage; i <= endPage; i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      onClick={() => handlePageChange(i)}
+                      className={`px-3 py-1 rounded-md text-sm ${
+                        currentPage === i
+                          ? 'bg-blue-600 text-white'
+                          : 'border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
+                      }`}
+                    >
+                      {i}
+                    </button>
+                  );
+                }
+                
+                // Add ellipsis and last page if needed
+                if (endPage < totalPages) {
+                  if (endPage < totalPages - 1) {
+                    pages.push(
+                      <span key="ellipsis-end" className="px-2 py-1 text-gray-500">
+                        ...
+                      </span>
+                    );
+                  }
+                  pages.push(
+                    <button
+                      key={totalPages}
+                      onClick={() => handlePageChange(totalPages)}
+                      className={`px-3 py-1 rounded-md text-sm border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer`}
+                    >
+                      {totalPages}
+                    </button>
+                  );
+                }
+                
+                return pages;
+              })()}
               
+              {/* Next Page Button */}
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                aria-label="Next page"
               >
                 Next
+              </button>
+              
+              {/* Last Page Button */}
+              <button
+                onClick={() => handlePageChange(totalPages)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                aria-label="Last page"
+              >
+                Last
               </button>
             </nav>
           </div>
