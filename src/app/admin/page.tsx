@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 interface User {
   id: number;
@@ -46,7 +47,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8"><a href="/">Admin Dashboard</a></h1>
+      <h1 className="text-3xl font-bold mb-8"><Link href="/">Admin Dashboard</Link></h1>
       
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
