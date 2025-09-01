@@ -10,7 +10,12 @@
     "db:init": "npx tsx scripts/init-db.ts",
     "db:reset": "npx tsx scripts/reset-db.ts",
     "db:import:production": "npx tsx scripts/import-production-users.ts",
-    "db:import:prod:force": "DATABASE_URL=\"your-production-connection\" npx tsx scripts/import-production-users.ts"
+    "db:import:prod:force": "DATABASE_URL=\"your-production-connection\" npx tsx scripts/import-production-users.ts",
+    "db:recreate:exact": "npx tsx scripts/recreate-exact-table.ts",
+    "db:import:exact": "npx tsx scripts/import-exact-production.ts",
+    "db:setup:production": "npm run db:recreate:exact && npm run db:import:exact",
+    "db:import:corrected": "npx tsx scripts/import-corrected-production.ts",
+    "db:setup:corrected": "npm run db:recreate:exact && npm run db:import:corrected"
   },
   "dependencies": {
     "next": "15.5.2",
