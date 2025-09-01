@@ -1,0 +1,85 @@
+const { postgres } = require('postgres');
+
+async function initDatabase() {
+  // Get database URL from environment variable
+  const databaseUrl = process.env.DATABASE_URL;
+  
+  if (!databaseUrl) {
+    console.error('❌ DATABASE_URL environment variable is not set');
+    console.error('Please set DATABASE_URL in your .env.local file or environment variables');
+    process.exit(1);
+  }
+
+  console.log('🔗 Connecting to database...');
+  
+  const sql = postgres(databaseUrl, {
+    ssl: 'require',
+    idle_timeout: 20,
+  });
+
+  try {
+    console.log('🚀 Initializing database...');
+    
+    // Create users table
+    await sql`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+
+    console.log('✅ Users table created successfully');
+    
+    // Create posts table
+    await sql`
+      CREATE TABLE IF NOT EXISTS posts (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        content TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+
+    console.log('✅ Posts table created successfully');
+    
+    // Insert sample data
+    const sampleUsers = await sql`
+      INSERT INTO users (name, email) 
+      VALUES 
+        ('John Doe', 'john@example.com'),
+        ('Jane Smith', 'jane@example.com')
+      ON CONFLICT (email) DO NOTHING
+      RETURNING *
+    `;
+    
+    console.log(`✅ Inserted ${sampleUsers.length} sample users`);
+    
+    if (sampleUsers.length > 0) {
+      const samplePosts = await sql`
+        INSERT INTO posts (user_id, title, content) 
+        VALUES 
+          (${sampleUsers[0].id}, 'First Post', 'This is the content of the first post'),
+          (${sampleUsers[1].id}, 'Second Post', 'This is the content of the second post')
+        RETURNING *
+      `;
+      console.log(`✅ Inserted ${samplePosts.length} sample posts`);
+    }
+    
+    console.log('🎉 Database initialization completed successfully!');
+    
+  } catch (error) {
+    console.error('❌ Error initializing database:', error);
+    process.exit(1);
+  } finally {
+    await sql.end();
+    console.log('🔌 Database connection closed');
+  }
+}
+
+// Run the initialization
+initDatabase();

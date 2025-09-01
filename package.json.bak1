@@ -6,9 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "db:init": "npx tsx scripts/init-db.ts",
-    "db:reset": "npx tsx scripts/reset-db.ts"
+    "lint": "eslint"
   },
   "dependencies": {
     "next": "15.5.2",
@@ -22,11 +20,9 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "dotenv": "^17.2.1",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
     "tailwindcss": "^4",
-    "tsx": "^4.20.5",
     "typescript": "^5"
   }
 }
