@@ -1,23 +1,33 @@
 import { NextResponse } from 'next/server';
 import sql from '@/lib/db';
 
-// This is the exact signature Next.js expects for App Router
+// Correct Next.js App Router signature for dynamic routes
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ user_id: string }> }
 ) {
-  try {
-    // Await the params
-    const { id } = await params;
-    
-    if (!sql) {
-      return NextResponse.json(
-        { error: 'Database not configured' },
-        { status: 500 }
-      );
-    }
+  if (!sql) {
+    return NextResponse.json(
+      { error: 'Database not configured' },
+      { status: 500 }
+    );
+  }
 
-    const [user] = await sql`SELECT * FROM users WHERE id = ${id}`;
+  try {
+    const { user_id } = await params;
+    
+    const [user] = await sql`
+      SELECT 
+        id,
+        user_id,
+        referrer_id,
+        email,
+        name,
+        token_id,
+        created_at
+      FROM users 
+      WHERE user_id = ${user_id}
+    `;
     
     if (!user) {
       return NextResponse.json(
@@ -30,10 +40,8 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching user:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch user' },
+      { error: 'Failed to fetch user', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
 }
-
-// Similar for PUT and DELETE...
