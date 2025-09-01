@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import sql from '@/lib/db';
 
-// Use the correct Next.js App Router signature for dynamic routes
+// Correct signature for Next.js 15.5.2 dynamic routes
 export async function GET(
   request: Request,
-  { params }: { params: { user_id: string } }
+  context: { params: Promise<{ user_id: string }> }
 ) {
   if (!sql) {
     return NextResponse.json(
@@ -14,6 +14,8 @@ export async function GET(
   }
 
   try {
+    // Await the params promise
+    const params = await context.params;
     const { user_id } = params;
     
     const users = await sql`
