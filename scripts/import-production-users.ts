@@ -130,7 +130,7 @@ class ProductionDataImporter {
     console.log('📊 Database validation:');
     console.log(`   Total users: ${totalUsers[0].count}`);
     console.log(`   Unique user_ids: ${uniqueUserIds[0].count}`);
-    console.log.log(`   Unique emails: ${uniqueEmails[0].count}`);
+    console.log(`   Unique emails: ${uniqueEmails[0].count}`);
     
     if (totalUsers[0].count !== uniqueUserIds[0].count) {
       console.warn('⚠️  Warning: user_id values are not unique!');

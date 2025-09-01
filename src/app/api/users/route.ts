@@ -1,8 +1,11 @@
-//bak2
 import { NextResponse } from 'next/server';
 import sql from '@/lib/db';
 
-export async function GET(request: Request) {
+// Use the correct Next.js App Router signature
+export async function GET(
+  request: Request,
+  { params }: { params: { user_id: string } }
+) {
   if (!sql) {
     return NextResponse.json(
       { error: 'Database not configured' },
@@ -11,7 +14,9 @@ export async function GET(request: Request) {
   }
 
   try {
-    const users = await sql`
+    const { user_id } = params;
+    
+    const [user] = await sql`
       SELECT 
         id,
         user_id,
@@ -21,15 +26,21 @@ export async function GET(request: Request) {
         token_id,
         created_at
       FROM users 
-      ORDER BY created_at DESC
-      LIMIT 100
+      WHERE user_id = ${user_id}
     `;
     
-    return NextResponse.json(users);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+    
+    return NextResponse.json(user);
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error('Error fetching user:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch users', details: error instanceof Error ? error.message : 'Unknown error' },
+      { error: 'Failed to fetch user', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
