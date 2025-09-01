@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import sql from '@/lib/db';
 
+// Use the correct Next.js App Router signature for dynamic routes
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ user_id: string }> }
+  { params }: { params: { user_id: string } }
 ) {
   if (!sql) {
     return NextResponse.json(
@@ -13,9 +14,9 @@ export async function GET(
   }
 
   try {
-    const { user_id } = await params;
+    const { user_id } = params;
     
-    const [user] = await sql`
+    const users = await sql`
       SELECT 
         id,
         user_id,
@@ -28,14 +29,14 @@ export async function GET(
       WHERE user_id = ${user_id}
     `;
     
-    if (!user) {
+    if (users.length === 0) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
       );
     }
     
-    return NextResponse.json(user);
+    return NextResponse.json(users[0]);
   } catch (error) {
     console.error('Error fetching user:', error);
     return NextResponse.json(
