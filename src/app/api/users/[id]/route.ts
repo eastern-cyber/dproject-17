@@ -1,17 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withDatabase } from '../../../../lib/database';
+import { withDatabase } from '@/lib/database';
 
 interface PostgresError extends Error {
   code?: string;
 }
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
-
-export async function GET(request: NextRequest, { params }: RouteParams) {
+// Proper Next.js App Router signature for dynamic routes
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const user = await withDatabase(async (sql) => {
       const [result] = await sql`SELECT * FROM users WHERE id = ${params.id}`;
@@ -35,7 +33,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const { name, email } = await request.json();
     
@@ -75,7 +76,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const user = await withDatabase(async (sql) => {
       const [result] = await sql`DELETE FROM users WHERE id = ${params.id} RETURNING *`;
