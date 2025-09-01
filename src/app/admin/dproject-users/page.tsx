@@ -334,12 +334,12 @@ export default function AdminDashboard() {
                 className="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                 aria-label="Previous page"
               >
-                Previous
+                &lt;&lt;
               </button>
               
               {/* Page number buttons - Show max 10 pages */}
               {(() => {
-                const maxVisiblePages = 10;
+                const maxVisiblePages = 3;
                 let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
                 const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
                 
@@ -376,7 +376,7 @@ export default function AdminDashboard() {
                 className="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                 aria-label="Next page"
               >
-                Next
+                &gt;&gt;
               </button>
               
               {/* Last Page Button */}
