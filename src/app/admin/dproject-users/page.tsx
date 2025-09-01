@@ -433,9 +433,7 @@ export default function AdminDashboard() {
                       <dd className="font-mono text-sm">{selectedUser.referrer_id || 'None'}</dd>
                     </div>
                   </dl>
-                </div>
-                
-                <div>
+                  <p></p>
                   <h3 className="font-semibold text-gray-700 dark:text-gray-300">Investment Details</h3>
                   <dl className="mt-2 space-y-2">
                     <div>
