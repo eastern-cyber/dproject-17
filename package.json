@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "db:init": "npx tsx scripts/init-db.ts",
-    "db:reset": "npx tsx scripts/reset-db.ts"
+    "db:reset": "npx tsx scripts/reset-db.ts",
+    "db:import:production": "npx tsx scripts/import-production-users.ts",
+    "db:import:prod:force": "DATABASE_URL=\"your-production-connection\" npx tsx scripts/import-production-users.ts"
   },
   "dependencies": {
     "next": "15.5.2",
