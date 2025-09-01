@@ -81,7 +81,7 @@ export default function AdminDashboard() {
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user.user_id} className="border-b hover:bg-gray-50">
+                <tr key={user.user_id} className="border-b hover:bg-gray-700 cursor-pointer">
                   <td className="px-4 py-2">{user.user_id}</td>
                   <td className="px-4 py-2">{user.email}</td>
                   <td className="px-4 py-2">{user.name}</td>
