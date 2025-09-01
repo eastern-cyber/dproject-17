@@ -136,6 +136,7 @@ export default function AdminDashboard() {
                 <th className="px-4 py-2 text-left">Referrer</th>
                 <th className="px-4 py-2 text-left">POL</th>
                 <th className="px-4 py-2 text-left">Rate</th>
+                <th className="px-4 py-2 text-left">Date Time</th>
                 <th className="px-4 py-2 text-left">Created</th>
               </tr>
             </thead>
@@ -151,6 +152,7 @@ export default function AdminDashboard() {
                   </td>
                   <td className="px-4 py-2">{formatNumber(user.pol)}</td>
                   <td className="px-4 py-2">{formatNumber(user.rate)}</td>
+                  <td className="px-4 py-2">{user.date_time || 'N/A'}</td>
                   <td className="px-4 py-2">
                     {new Date(user.created_at).toLocaleDateString()}
                   </td>
