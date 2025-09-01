@@ -433,8 +433,8 @@ export default function AdminDashboard() {
                       <dd className="font-mono text-sm">{selectedUser.referrer_id || 'None'}</dd>
                     </div>
                   </dl>
-                  <p></p>
-                  <h3 className="font-semibold text-gray-700 dark:text-gray-300">Investment Details</h3>
+                  {/* <p></p> */}
+                  {/* <h3 className="font-semibold text-gray-700 dark:text-gray-300">Investment Details</h3>
                   <dl className="mt-2 space-y-2">
                     <div>
                       <dt className="text-sm text-gray-500 dark:text-gray-400">POL</dt>
@@ -456,7 +456,7 @@ export default function AdminDashboard() {
                       <dt className="text-sm text-gray-500 dark:text-gray-400">Updated At</dt>
                       <dd className="text-sm">{new Date(selectedUser.updated_at).toLocaleString()}</dd>
                     </div>
-                  </dl>
+                  </dl> */}
                 </div>
               </div>
               
