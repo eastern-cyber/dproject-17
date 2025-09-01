@@ -28,14 +28,13 @@ type SortDirection = 'asc' | 'desc';
 export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [stats, setStats] = useState({ total: 0, loading: true });
-  const [isClient, setIsClient] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<SortField>('created_at');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [itemsPerPage] = useState(10);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -84,8 +83,8 @@ export default function AdminDashboard() {
   // Sort users
   const sortedUsers = useMemo(() => {
     return [...filteredUsers].sort((a, b) => {
-      let aValue: any = a[sortField];
-      let bValue: any = b[sortField];
+      let aValue: string | number | null = a[sortField];
+      let bValue: string | number | null = b[sortField];
       
       // Handle numeric fields
       if (sortField === 'pol' || sortField === 'rate') {
@@ -98,6 +97,10 @@ export default function AdminDashboard() {
         aValue = aValue.toLowerCase();
         bValue = bValue.toLowerCase();
       }
+      
+      // Handle null values
+      if (aValue === null) aValue = '';
+      if (bValue === null) bValue = '';
       
       if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
       if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
@@ -166,10 +169,7 @@ export default function AdminDashboard() {
     setCurrentPage(page);
   };
 
-    // Prevent rendering until component is mounted
-  if (!mounted || stats.loading) {
-    return <div className="p-8">Loading...</div>;
-  }
+  if (!mounted || stats.loading) return <div className="p-8">Loading...</div>;
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
@@ -337,40 +337,18 @@ export default function AdminDashboard() {
                 Previous
               </button>
               
-              {/* Page number buttons with ellipsis */}
+              {/* Page number buttons - Show max 10 pages */}
               {(() => {
-                const maxVisiblePages = 7;
-                const pages = [];
-                
+                const maxVisiblePages = 10;
                 let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-                let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
                 
                 // Adjust if we're near the end
                 if (endPage - startPage + 1 < maxVisiblePages) {
                   startPage = Math.max(1, endPage - maxVisiblePages + 1);
                 }
                 
-                // Add first page and ellipsis if needed
-                if (startPage > 1) {
-                  pages.push(
-                    <button
-                      key={1}
-                      onClick={() => handlePageChange(1)}
-                      className={`px-3 py-1 rounded-md text-sm border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer`}
-                    >
-                      1
-                    </button>
-                  );
-                  if (startPage > 2) {
-                    pages.push(
-                      <span key="ellipsis-start" className="px-2 py-1 text-gray-500">
-                        ...
-                      </span>
-                    );
-                  }
-                }
-                
-                // Add page numbers
+                const pages = [];
                 for (let i = startPage; i <= endPage; i++) {
                   pages.push(
                     <button
@@ -381,32 +359,13 @@ export default function AdminDashboard() {
                           ? 'bg-blue-600 text-white'
                           : 'border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
                       }`}
+                      aria-label={`Page ${i}`}
+                      aria-current={currentPage === i ? 'page' : undefined}
                     >
                       {i}
                     </button>
                   );
                 }
-                
-                // Add ellipsis and last page if needed
-                if (endPage < totalPages) {
-                  if (endPage < totalPages - 1) {
-                    pages.push(
-                      <span key="ellipsis-end" className="px-2 py-1 text-gray-500">
-                        ...
-                      </span>
-                    );
-                  }
-                  pages.push(
-                    <button
-                      key={totalPages}
-                      onClick={() => handlePageChange(totalPages)}
-                      className={`px-3 py-1 rounded-md text-sm border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer`}
-                    >
-                      {totalPages}
-                    </button>
-                  );
-                }
-                
                 return pages;
               })()}
               
