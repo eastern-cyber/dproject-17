@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server';
 import sql from '@/lib/db';
 
-// Proper type definition for Next.js 15.5.2
-interface Context {
-  params: Promise<{ user_id: string }>;
-}
+// Use NextRequest for better type handling
+import type { NextRequest } from 'next/server';
 
 export async function GET(
-  request: Request,
-  context: Context
+  request: NextRequest,
+  { params }: { params: { user_id: string } }
 ) {
   if (!sql) {
     return NextResponse.json(
@@ -18,8 +16,6 @@ export async function GET(
   }
 
   try {
-    // Await the params promise
-    const params = await context.params;
     const { user_id } = params;
     
     const users = await sql`
