@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withDatabase } from '@/lib/database';
+import { withDatabase } from '../../../../lib/database';
 
 interface PostgresError extends Error {
   code?: string;
