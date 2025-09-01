@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { checkDatabaseHealth } from '@/lib/db';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const isHealthy = await checkDatabaseHealth();
     

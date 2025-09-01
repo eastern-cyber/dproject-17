@@ -1,17 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { withDatabase } from '@/lib/database';
+import { NextResponse } from 'next/server';
+import sql from '@/lib/db';
 
-// Define proper error interface
 interface PostgresError extends Error {
   code?: string;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!sql) {
+    return NextResponse.json(
+      { error: 'Database not configured' },
+      { status: 500 }
+    );
+  }
+
   try {
-    const users = await withDatabase(async (sql) => {
-      return await sql`SELECT * FROM users ORDER BY created_at DESC`;
-    });
-    
+    const users = await sql`SELECT * FROM users ORDER BY created_at DESC`;
     return NextResponse.json(users);
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -22,7 +25,14 @@ export async function GET() {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
+  if (!sql) {
+    return NextResponse.json(
+      { error: 'Database not configured' },
+      { status: 500 }
+    );
+  }
+
   try {
     const { name, email } = await request.json();
     
@@ -33,21 +43,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = await withDatabase(async (sql) => {
-      const [result] = await sql`
-        INSERT INTO users (name, email) 
-        VALUES (${name}, ${email})
-        RETURNING *
-      `;
-      return result;
-    });
+    const [user] = await sql`
+      INSERT INTO users (name, email) 
+      VALUES (${name}, ${email})
+      RETURNING *
+    `;
     
     return NextResponse.json(user, { status: 201 });
   } catch (error) {
     console.error('Error creating user:', error);
     
     const pgError = error as PostgresError;
-    if (pgError.code === '23505') { // Unique violation
+    if (pgError.code === '23505') {
       return NextResponse.json(
         { error: 'Email already exists' },
         { status: 409 }
