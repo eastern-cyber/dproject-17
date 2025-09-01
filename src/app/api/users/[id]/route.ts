@@ -1,20 +1,23 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { withDatabase } from '@/lib/database';
+import { NextResponse } from 'next/server';
+import sql from '@/lib/db';
 
 interface PostgresError extends Error {
   code?: string;
 }
 
-// Proper Next.js App Router signature for dynamic routes
 export async function GET(
-  request: NextRequest,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
+  if (!sql) {
+    return NextResponse.json(
+      { error: 'Database not configured' },
+      { status: 500 }
+    );
+  }
+
   try {
-    const user = await withDatabase(async (sql) => {
-      const [result] = await sql`SELECT * FROM users WHERE id = ${params.id}`;
-      return result;
-    });
+    const [user] = await sql`SELECT * FROM users WHERE id = ${params.id}`;
     
     if (!user) {
       return NextResponse.json(
@@ -34,21 +37,25 @@ export async function GET(
 }
 
 export async function PUT(
-  request: NextRequest,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
+  if (!sql) {
+    return NextResponse.json(
+      { error: 'Database not configured' },
+      { status: 500 }
+    );
+  }
+
   try {
     const { name, email } = await request.json();
     
-    const user = await withDatabase(async (sql) => {
-      const [result] = await sql`
-        UPDATE users 
-        SET name = ${name}, email = ${email}, updated_at = CURRENT_TIMESTAMP
-        WHERE id = ${params.id}
-        RETURNING *
-      `;
-      return result;
-    });
+    const [user] = await sql`
+      UPDATE users 
+      SET name = ${name}, email = ${email}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${params.id}
+      RETURNING *
+    `;
     
     if (!user) {
       return NextResponse.json(
@@ -77,14 +84,18 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
+  if (!sql) {
+    return NextResponse.json(
+      { error: 'Database not configured' },
+      { status: 500 }
+    );
+  }
+
   try {
-    const user = await withDatabase(async (sql) => {
-      const [result] = await sql`DELETE FROM users WHERE id = ${params.id} RETURNING *`;
-      return result;
-    });
+    const [user] = await sql`DELETE FROM users WHERE id = ${params.id} RETURNING *`;
     
     if (!user) {
       return NextResponse.json(
