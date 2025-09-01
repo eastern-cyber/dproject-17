@@ -1,23 +1,26 @@
-import { NextResponse } from 'next/server'
-import sql from '@/lib/db'
+import { NextResponse } from 'next/server';
+import { checkDatabaseHealth } from '@/lib/db';
 
 export async function GET() {
   try {
-    await sql`SELECT 1`
+    const isHealthy = await checkDatabaseHealth();
+    
     return NextResponse.json({ 
-      status: 'healthy', 
+      status: isHealthy ? 'healthy' : 'unhealthy', 
       timestamp: new Date().toISOString(),
-      database: 'connected'
-    })
+      database: isHealthy ? 'connected' : 'disconnected',
+      message: isHealthy ? 'Database connection successful' : 'Database connection failed or not configured'
+    });
   } catch (error) {
     return NextResponse.json(
       { 
-        status: 'unhealthy', 
+        status: 'error', 
         timestamp: new Date().toISOString(),
-        database: 'disconnected',
+        database: 'error',
+        message: 'Health check failed',
         error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
-    )
+    );
   }
 }
