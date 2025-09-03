@@ -32,13 +32,13 @@ export default function Footer() {
         <div className="flex flex-col justify-top items-center">
           <h3 className="flex text-[18px] font-semibold text-yellow-500 mb-4">Follow DProject</h3>
           <div className="flex space-x-5 items-center">
-            <a href="https://www.facebook.com/people/KOK-KOK-KOK/61573998052437/" target="_blank" aria-label="Facebook"><Facebook className="w-6 h-6 -gray-300 hover:text-blue-500" /></a>
-            <a href="#" target="_blank" aria-label="X (formerly Twitter)"><span className="text-[23px] font-bold text-gray-300 hover:text-yellow-400">X</span></a>
-            <a href="https://www.youtube.com/@DProject-w5z" target="_blank" aria-label="YouTube Channel"><Youtube className="w-7 h-7 text-gray-300 hover:text-red-500" /></a>            
-            <a href="https://www.instagram.com/kokkokkok.3k?igsh=emNrZ2tta2drdzV2" target="_blank" aria-label="Instagram"><Instagram className="w-6 h-6 text-gray-300 hover:text-orange-500" /></a>
-            <a href="https://lin.ee/xGUnJcK" target="_blank" aria-label="Line App"><span className="text-[22px] font-bold text-gray-300 hover:text-yellow-400">Line</span></a>
+            <Link href="https://www.facebook.com/people/KOK-KOK-KOK/61573998052437/" target="_blank" aria-label="Facebook"><Facebook className="w-6 h-6 -gray-300 hover:text-blue-500" /></Link>
+            <Link href="#" target="_blank" aria-label="X (formerly Twitter)"><span className="text-[23px] font-bold text-gray-300 hover:text-yellow-400">X</span></Link>
+            <Link href="https://www.youtube.com/@DProject-w5z" target="_blank" aria-label="YouTube Channel"><Youtube className="w-7 h-7 text-gray-300 hover:text-red-500" /></Link>            
+            <Link href="https://www.instagram.com/kokkokkok.3k?igsh=emNrZ2tta2drdzV2" target="_blank" aria-label="Instagram"><Instagram className="w-6 h-6 text-gray-300 hover:text-orange-500" /></Link>
+            <Link href="https://lin.ee/xGUnJcK" target="_blank" aria-label="Line App"><span className="text-[22px] font-bold text-gray-300 hover:text-yellow-400">Line</span></Link>
           </div>
-          <a target="_blank" href="https://3k.dfi.fund/templates/index.html"><p className="text-[20px] font-bold mt-4"><span className="text-red-500">Kok</span><span className="text-yellow-500">Kok</span><span className="text-green-500">Kok</span><sup className="text-[10px] font-bold">TM</sup></p></a>
+          <Link target="_blank" href="https://3k.dfi.fund/templates/index.html"><p className="text-[20px] font-bold mt-4"><span className="text-red-500">Kok</span><span className="text-yellow-500">Kok</span><span className="text-green-500">Kok</span><sup className="text-[10px] font-bold">TM</sup></p></Link>
           <p className="text-[16px] text-gray-200 mt-0"><b>Web3 SuperApp</b> for the Future.</p>
         </div>
       </div>

@@ -54,12 +54,12 @@ export default function Home() {
                   ยินดีต้อนรับสู่ DProject
                 </p>
                 <p className="mt-5 w-full">
-                  <a 
+                  <Link 
                     href="/member-area"
                     className="flex flex-col border bg-zinc-800 border-zinc-500 px-4 py-3 rounded-lg hover:bg-red-600 transition-colors hover:border-zinc-300 w-full text-center"
                   >
                     <p className="text-lg break-words">เข้าสู่พื้นที่สมาชิก</p>
-                  </a>
+                  </Link>
                 </p>
               </div>
             </div>
