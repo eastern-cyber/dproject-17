@@ -3,8 +3,6 @@ import { client } from "@/lib/client";
 import { chain } from "@/lib/chain";
 
 const TokenPOL: React.FC = () => {
-    const myNumber = -1;
-
     return (
         <TokenProvider
         address={"0xca23b56486035e14F344d6eb591DC27274AF3F47"}
@@ -14,5 +12,5 @@ const TokenPOL: React.FC = () => {
         <TokenIcon className="h-6 w-6 rounded-full mr-1" />
         </TokenProvider>
     );
-    };
-    export default TokenPOL;
+};
+export default TokenPOL;
