@@ -1,6 +1,7 @@
 //src/components/ReferralTree.tsx
 import Link from 'next/link';
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import React from 'react';
 
 interface User {
   userId: string;
@@ -134,7 +135,7 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
     return `${address.slice(0, front)}...${address.slice(-rear)}`;
   };
 
-  const renderTree = (nodes: TreeNode[], parentKey: string = ''): JSX.Element[] => {
+  const renderTree = (nodes: TreeNode[], parentKey: string = ''): React.JSX.Element[] => {
     return nodes.flatMap((node, index) => {
       const key = `${parentKey}-${index}`;
       const directReferrals = node.children.length;
