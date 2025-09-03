@@ -1,19 +1,34 @@
+//src/app/referrer/[referrerId]/page.tsx
 "use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import dprojectIcon from "../../../../public/DProjectLogo_650x600.svg";
-import { ConnectButton, darkTheme } from "thirdweb/react";
 import WalletConnect from "@/components/WalletConnect";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-    inAppWallet,
-    createWallet,
-  } from "thirdweb/wallets";
 import Footer from "@/components/Footer";
 
+// Define proper interfaces for the data structure
+interface UserData {
+  userId?: string;
+  walletAddress?: string;
+  email?: string;
+  userEmail?: string;
+  name?: string;
+  userName?: string;
+  fullName?: string;
+  tokenId?: string;
+  nftTokenId?: string;
+}
+
+interface ReferrerData {
+  email?: string;
+  name?: string;
+  tokenId?: string;
+}
+
 export default function ReferrerDetails({ params }: { params: { referrerId: string } }) {
-    const [referrerData, setReferrerData] = useState<{ email?: string; name?: string; tokenId?: string } | null>(null);
+    const [referrerData, setReferrerData] = useState<ReferrerData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
@@ -31,22 +46,19 @@ export default function ReferrerDetails({ params }: { params: { referrerId: stri
                 
                 const data = await response.json();
                 
-                // Assuming the new structure might be different, let's log it to see
-                console.log("Fetched data structure:", data);
-                
                 // Try different possible structures - adjust based on actual structure
-                let referrer;
+                let referrer: UserData | undefined;
                 
                 // Option 1: If data is an array directly
                 if (Array.isArray(data)) {
-                    referrer = data.find((item: any) => 
+                    referrer = data.find((item: UserData) => 
                         item.userId?.toLowerCase() === params.referrerId.toLowerCase() ||
                         item.walletAddress?.toLowerCase() === params.referrerId.toLowerCase()
                     );
                 } 
                 // Option 2: If data has a users property that contains the array
                 else if (data.users && Array.isArray(data.users)) {
-                    referrer = data.users.find((item: any) => 
+                    referrer = data.users.find((item: UserData) => 
                         item.userId?.toLowerCase() === params.referrerId.toLowerCase() ||
                         item.walletAddress?.toLowerCase() === params.referrerId.toLowerCase()
                     );
@@ -54,11 +66,11 @@ export default function ReferrerDetails({ params }: { params: { referrerId: stri
                 // Option 3: If data has a different structure
                 else if (typeof data === 'object') {
                     // Try to find the user by ID in any nested structure
-                    referrer = Object.values(data).find((item: any) => 
+                    referrer = Object.values(data).find((item: unknown) => 
                         item && typeof item === 'object' && 
-                        (item.userId?.toLowerCase() === params.referrerId.toLowerCase() ||
-                         item.walletAddress?.toLowerCase() === params.referrerId.toLowerCase())
-                    );
+                        ((item as UserData).userId?.toLowerCase() === params.referrerId.toLowerCase() ||
+                         (item as UserData).walletAddress?.toLowerCase() === params.referrerId.toLowerCase())
+                    ) as UserData;
                 }
 
                 if (referrer) {
@@ -104,7 +116,7 @@ export default function ReferrerDetails({ params }: { params: { referrerId: stri
                 <Link href="/" passHref>
                     <Image
                         src={dprojectIcon}
-                        alt=""
+                        alt="DProject Logo"
                         className="mb-4 size-[100px] md:size-[100px]"
                         style={{
                             filter: "drop-shadow(0px 0px 24px #a726a9a8",
