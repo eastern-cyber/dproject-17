@@ -1,7 +1,8 @@
+//src/components/ReturnBonusData.tsx
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 interface TransactionData {
     "Transaction Hash": string;
@@ -9,7 +10,8 @@ interface TransactionData {
     From: string;
     To: string;
     "Value_OUT(POL)": string;
-  }
+}
+
 interface UserData {
     userId: string;
     referrerId: string;
@@ -39,33 +41,33 @@ const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, re
     const [expandedUser, setExpandedUser] = useState<string | null>(null);
     const [transactionData, setTransactionData] = useState<TransactionData[]>([]);
     const [userPolMap, setUserPolMap] = useState<{ [key: string]: number }>({});
-  
     const [returnBonusTotalPol, setReturnBonusTotalPol] = useState<number>(0);
     const [latestReturnBonusDate, setLatestReturnBonusDate] = useState<string>("N/A");
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
-      // Fetch the JSON data
-      fetch("https://raw.githubusercontent.com/eastern-cyber/dproject-admin-1.0.1/main/public/CaringBonus-Payout-Success_Polygonscan.json")
-        .then((response) => response.json())
-        .then((data: TransactionData[]) => {
-          setTransactionData(data);
-  
-          // Create a map to store the total POL for each user
-          const polMap: { [key: string]: number } = {};
-  
-          data.forEach((transaction) => {
-            const toAddress = transaction.To.toLowerCase();
-            const valueOut = parseFloat(transaction["Value_OUT(POL)"]);
-            if (!isNaN(valueOut)) {
-              polMap[toAddress] = (polMap[toAddress] || 0) + valueOut;
-            }
-          });
-  
-          setUserPolMap(polMap);
-        })
-        .catch((error) => {
-          console.error("Error fetching transaction data:", error);
-        });
+        // Fetch the JSON data
+        fetch("https://raw.githubusercontent.com/eastern-cyber/dproject-admin-1.0.1/main/public/CaringBonus-Payout-Success_Polygonscan.json")
+            .then((response) => response.json())
+            .then((data: TransactionData[]) => {
+                setTransactionData(data);
+    
+                // Create a map to store the total POL for each user
+                const polMap: { [key: string]: number } = {};
+    
+                data.forEach((transaction) => {
+                    const toAddress = transaction.To.toLowerCase();
+                    const valueOut = parseFloat(transaction["Value_OUT(POL)"]);
+                    if (!isNaN(valueOut)) {
+                        polMap[toAddress] = (polMap[toAddress] || 0) + valueOut;
+                    }
+                });
+    
+                setUserPolMap(polMap);
+            })
+            .catch((error) => {
+                console.error("Error fetching transaction data:", error);
+            });
     }, []);
 
     const matchingUser = users.find(user => user.userId === referrerId);
@@ -74,10 +76,6 @@ const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, re
     ).map((user, index) => ({ ...user, recordNumber: index + 1 }));
 
     const relevantReports = reportData.filter(report => report.walletAddress === matchingUser?.userId);
-    const latestSentDate = relevantReports.length > 0 
-        ? relevantReports[relevantReports.length - 1].sentDate 
-        : "N/A";
-
     const totalSentAmount = relevantReports.reduce((sum, report) => sum + Number(report.sentAmount), 0);
 
     const formatDate = (dateString?: string) => {
@@ -98,7 +96,7 @@ const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, re
     };
 
     const formatUTCDate = (utcString: string): string => {
-    const date = new Date(utcString);
+        const date = new Date(utcString);
         if (isNaN(date.getTime())) return "Invalid Date";
 
         // Add 7 hours for GMT+7 (Bangkok)
@@ -116,54 +114,50 @@ const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, re
         return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
     };
 
-
-
     useEffect(() => {
-    const fetchReturnBonusTransactions = async () => {
-        try {
-        const response = await fetch(
-            "https://raw.githubusercontent.com/eastern-cyber/dproject-admin-1.0.2/main/public/ReturnBonus-Payout-Success_Polygonscan.json"
-        );
-        const data: TransactionData[] = await response.json();
+        const fetchReturnBonusTransactions = async () => {
+            try {
+                const response = await fetch(
+                    "https://raw.githubusercontent.com/eastern-cyber/dproject-admin-1.0.2/main/public/ReturnBonus-Payout-Success_Polygonscan.json"
+                );
+                const data: TransactionData[] = await response.json();
 
-        const matchingTo = matchingUser?.userId?.toLowerCase();
+                const matchingTo = matchingUser?.userId?.toLowerCase();
 
-        if (!matchingTo) {
-            setReturnBonusTotalPol(0);
-            setLatestReturnBonusDate("N/A");
-            return;
-        }
+                if (!matchingTo) {
+                    setReturnBonusTotalPol(0);
+                    setLatestReturnBonusDate("N/A");
+                    return;
+                }
 
-        const matchingTxs = data.filter((tx) => tx.To.toLowerCase() === matchingTo);
+                const matchingTxs = data.filter((tx) => tx.To.toLowerCase() === matchingTo);
 
-        const total = matchingTxs.reduce(
-            (sum, tx) => sum + parseFloat(tx["Value_OUT(POL)"] || "0"),
-            0
-        );
-        setReturnBonusTotalPol(total);
+                const total = matchingTxs.reduce(
+                    (sum, tx) => sum + parseFloat(tx["Value_OUT(POL)"] || "0"),
+                    0
+                );
+                setReturnBonusTotalPol(total);
 
-        if (matchingTxs.length > 0) {
-            const latestTx = matchingTxs[matchingTxs.length - 1]; // last one is the latest
-            const rawDate = latestTx["DateTime (UTC)"];
+                if (matchingTxs.length > 0) {
+                    const latestTx = matchingTxs[matchingTxs.length - 1];
+                    const rawDate = latestTx["DateTime (UTC)"];
 
-            const formattedDate = formatUTCDate(rawDate); // Use helper below
-            setLatestReturnBonusDate(formattedDate);
-        } else {
-            setLatestReturnBonusDate("N/A");
-        }
-        } catch (error) {
-        console.error("Error fetching Return Bonus Payout JSON:", error);
-        setReturnBonusTotalPol(0);
-        setLatestReturnBonusDate("N/A");
-        }
-    };
+                    const formattedDate = formatUTCDate(rawDate);
+                    setLatestReturnBonusDate(formattedDate);
+                } else {
+                    setLatestReturnBonusDate("N/A");
+                }
+            } catch (error) {
+                console.error("Error fetching Return Bonus Payout JSON:", error);
+                setReturnBonusTotalPol(0);
+                setLatestReturnBonusDate("N/A");
+            }
+        };
 
-    fetchReturnBonusTransactions();
+        fetchReturnBonusTransactions();
     }, [matchingUser]);
 
-
-    // Add useEffect and pagination logic
-    const [currentPage, setCurrentPage] = useState(1);
+    // Pagination logic
     const usersPerPage = 10;
     const totalPages = Math.ceil(matchingUsers.length / usersPerPage);
 
@@ -219,10 +213,32 @@ const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, re
         return sum + (userPolMap[userIdLower] || 0);
     }, 0);
 
+    // Calculate return bonus summary using useMemo to avoid recalculating on every render
+    const returnBonusSummary = useMemo(() => {
+        const total = grandTotalPol;
+        const returnKeep = (total / 75) * 25;
+        const directReturn = total + returnKeep;
+        const received = returnBonusTotalPol;
+        const newAmount = total - received;
+
+        const formatNumber = (num: number) =>
+            num.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            });
+
+        return {
+            total: formatNumber(directReturn),
+            returnKeep: formatNumber(returnKeep),
+            receivedTotal: formatNumber(total),
+            received: formatNumber(received),
+            newAmount: formatNumber(newAmount)
+        };
+    }, [grandTotalPol, returnBonusTotalPol]);
+
     return (
         <>
             <h1 className="text-center text-[20px] font-bold">รายละเอียด Return Bonus</h1>
-            {/* <h2 className="text-center text-[16px] break-all">ใส่เลขกระเป๋าของท่าน หรือ เลขกระเป๋าของผู้ที่ต้องการจะตรวจสอบ</h2> */}
             <input
                 type="text"
                 placeholder="ใส่เลขกระเป๋า..."
@@ -231,85 +247,79 @@ const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, re
                 className="text-[18px] text-center border border-gray-400 p-2 rounded mt-4 w-full bg-gray-900 text-white break-all"
             />
 
-            {matchingUser && (
-                <table>
-
-                </table>
-            )}
-
             {/* Matching Direct PR Members */}
             {matchingUsers.length > 0 && (
                 <>
-                <table className="table-auto border-collapse mt-4 w-full">
-                    <thead>
-                    <tr>
-                        <th className="border border-gray-400 px-4 py-2 w-1/6">#</th>
-                        <th className="text-[19px] border border-gray-400 px-4 py-2">Return Bonus from Direct PR</th>
-                        <th className="text-[19px] border border-gray-400 px-4 py-2">POL</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {paginatedUsers.map((user) => {
-                        const userIdLower = user.userId.toLowerCase();
-                        const totalPol = userPolMap[userIdLower] || 0;
+                    <table className="table-auto border-collapse mt-4 w-full">
+                        <thead>
+                            <tr>
+                                <th className="border border-gray-400 px-4 py-2 w-1/6">#</th>
+                                <th className="text-[19px] border border-gray-400 px-4 py-2">Return Bonus from Direct PR</th>
+                                <th className="text-[19px] border border-gray-400 px-4 py-2">POL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {paginatedUsers.map((user) => {
+                                const userIdLower = user.userId.toLowerCase();
+                                const totalPol = userPolMap[userIdLower] || 0;
 
-                        return (
-                        <tr key={user.userId}>
-                            <th className="border border-gray-400 px-4 py-2">{user.recordNumber}</th>
-                            <th className="text-[18px] font-normal text-left border border-gray-400 px-4 py-2 break-all relative">
-                            <b>เลขกระเป๋า:</b>&nbsp;
-                            <button
-                                className="text-left font-normal text-[18px] text-yellow-500 hover:text-red-500 break-all"
-                                onClick={() => setReferrerId(user.userId)}
-                            >
-                                {user.userId}
-                            </button>
-                            <br />
-                            <b>อีเมล:</b> {user.email || "N/A"}
+                                return (
+                                    <tr key={user.userId}>
+                                        <th className="border border-gray-400 px-4 py-2">{user.recordNumber}</th>
+                                        <th className="text-[18px] font-normal text-left border border-gray-400 px-4 py-2 break-all relative">
+                                            <b>เลขกระเป๋า:</b>&nbsp;
+                                            <button
+                                                className="text-left font-normal text-[18px] text-yellow-500 hover:text-red-500 break-all"
+                                                onClick={() => setReferrerId(user.userId)}
+                                            >
+                                                {user.userId}
+                                            </button>
+                                            <br />
+                                            <b>อีเมล:</b> {user.email || "N/A"}
 
-                            <button
-                                className="absolute top-2 right-4 text-yellow-500 hover:text-red-500"
-                                onClick={() => setExpandedUser(expandedUser === user.userId ? null : user.userId)}
-                            >
-                                {expandedUser === user.userId ? "⏶" : "⏷"}
-                            </button>
+                                            <button
+                                                className="absolute top-2 right-4 text-yellow-500 hover:text-red-500"
+                                                onClick={() => setExpandedUser(expandedUser === user.userId ? null : user.userId)}
+                                            >
+                                                {expandedUser === user.userId ? "⏶" : "⏷"}
+                                            </button>
 
-                            {expandedUser === user.userId && (
-                                <div className="mt-2 break-word">
-                                <b>ชื่อ:</b> {user.name || "N/A"}<br />
-                                <b>ลงทะเบียน:</b> {user.userCreated || "N/A"}<br />
-                                <b>เข้า Plan A:</b> {formatDate(user.planA)}<br />
-                                <b>เข้า Plan B:</b> {formatDate(user.planB)}<br />
-                                <span className="text-[19px] text-red-600">
-                                    <b>Token ID: {user.tokenId || "N/A"}</b>
-                                </span>
-                                </div>
-                            )}
-                            </th>
-                            <th className="border border-gray-400 px-4 py-2">{totalPol.toFixed(2)}</th>
-                        </tr>
-                        );
-                    })}
-                    </tbody>
-                    <tfoot>
-                        <tr className="bg-gray-900 text-white font-bold">
-                            <td className="border border-gray-400 px-4 py-2 text-center" colSpan={2}>
-                                รวม Return Bonus หน้านี้
-                            </td>
-                            <td className="border border-gray-400 px-4 py-2 text-center">
-                                {paginatedTotalPol.toFixed(2)}
-                            </td>
-                        </tr>
-                        <tr className="bg-gray-800 text-white font-bold">
-                            <td className="border border-gray-400 px-4 py-2 text-center" colSpan={2}>
-                                รวม Return Bonus ทั้งหมด &#40; POL &#41;
-                            </td>
-                            <td className="border border-gray-400 px-4 py-2 text-center">
-                                {grandTotalPol.toFixed(2)}
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+                                            {expandedUser === user.userId && (
+                                                <div className="mt-2 break-word">
+                                                    <b>ชื่อ:</b> {user.name || "N/A"}<br />
+                                                    <b>ลงทะเบียน:</b> {user.userCreated || "N/A"}<br />
+                                                    <b>เข้า Plan A:</b> {formatDate(user.planA)}<br />
+                                                    <b>เข้า Plan B:</b> {formatDate(user.planB)}<br />
+                                                    <span className="text-[19px] text-red-600">
+                                                        <b>Token ID: {user.tokenId || "N/A"}</b>
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </th>
+                                        <th className="border border-gray-400 px-4 py-2">{totalPol.toFixed(2)}</th>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                        <tfoot>
+                            <tr className="bg-gray-900 text-white font-bold">
+                                <td className="border border-gray-400 px-4 py-2 text-center" colSpan={2}>
+                                    รวม Return Bonus หน้านี้
+                                </td>
+                                <td className="border border-gray-400 px-4 py-2 text-center">
+                                    {paginatedTotalPol.toFixed(2)}
+                                </td>
+                            </tr>
+                            <tr className="bg-gray-800 text-white font-bold">
+                                <td className="border border-gray-400 px-4 py-2 text-center" colSpan={2}>
+                                    รวม Return Bonus ทั้งหมด &#40; POL &#41;
+                                </td>
+                                <td className="border border-gray-400 px-4 py-2 text-center">
+                                    {grandTotalPol.toFixed(2)}
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
 
                     <div className="flex justify-center items-center mt-6 space-x-1 text-sm flex-wrap">
                         <button
@@ -341,10 +351,10 @@ const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, re
                         >
                             &gt;|
                         </button>
-                            <div className="pl-2 ml-4 text-white">
-                                หน้า <span className="text-yellow-400">{currentPage}</span> /{" "}
-                                <span className="text-yellow-400">{totalPages}</span>
-                            </div>
+                        <div className="pl-2 ml-4 text-white">
+                            หน้า <span className="text-yellow-400">{currentPage}</span> /{" "}
+                            <span className="text-yellow-400">{totalPages}</span>
+                        </div>
                     </div>
 
                     {/* Summary table */}
@@ -370,74 +380,41 @@ const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, re
                             </tr>
                             <tr>
                                 <th className="border border-gray-400 px-4 py-2 text-center">
-                                    {(() => {
-                                        const total = grandTotalPol;
-                                        const returnKeep = (total / 75) * 25;
-                                        const directReturn = total + returnKeep;
-
-                                        const formatNumber = (num: number) =>
-                                            (Math.abs(num) < 1e-6 ? 0 : num).toLocaleString('en-US', {
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2,
-                                        });
-
-
-                                        return (
-                                            (() => {
-                                                const total = grandTotalPol;
-                                                const returnKeep = (total / 75) * 25;
-                                                const directReturn = total + returnKeep;
-                                                const received = returnBonusTotalPol;
-                                                const newAmount = total - received;
-
-                                                const formatNumber = (num: number) =>
-                                                num.toLocaleString('en-US', {
-                                                    minimumFractionDigits: 2,
-                                                    maximumFractionDigits: 2,
-                                                });
-
-                                                return (
-                                                <>
-                                                    <p className="text-[18px]">
-                                                    ยอดรวม
-                                                    <span className="text-[24px] text-yellow-500 animate-blink">
-                                                        &nbsp;{formatNumber(directReturn)}&nbsp;
-                                                    </span>{' '}
-                                                    POL
-                                                    </p>
-                                                    <p className="text-[18px]">
-                                                     เก็บสะสม 25%{' '}
-                                                    <span className="text-[24px] text-yellow-500 animate-blink">
-                                                        &nbsp;{formatNumber(returnKeep)}&nbsp;
-                                                    </span>{' '}
-                                                    POL
-                                                    </p>
-                                                    <p className="text-[18px]">
-                                                    ยอดรับ{' '}
-                                                    <span className="text-[24px] text-yellow-500 animate-blink">
-                                                        &nbsp;{formatNumber(total)}&nbsp;
-                                                    </span>{' '}
-                                                    POL
-                                                    </p>
-                                                    <p className="text-[18px]">
-                                                    รับแล้ว
-                                                    <span className="text-[24px] text-yellow-500 animate-blink">
-                                                        &nbsp;{formatNumber(received)}&nbsp;
-                                                    </span>{' '}
-                                                    POL
-                                                    </p>
-                                                    <p className="text-[18px]">
-                                                     ยอดใหม่{' '}
-                                                    <span className="text-[24px] text-yellow-500 animate-blink">
-                                                        &nbsp;{formatNumber(newAmount)}&nbsp;
-                                                    </span>{' '}
-                                                    POL
-                                                    </p>
-                                                </>
-                                                );
-                                            })()
-                                            );
-                                    })()}
+                                    <p className="text-[18px]">
+                                        ยอดรวม
+                                        <span className="text-[24px] text-yellow-500 animate-blink">
+                                            &nbsp;{returnBonusSummary.total}&nbsp;
+                                        </span>{' '}
+                                        POL
+                                    </p>
+                                    <p className="text-[18px]">
+                                         เก็บสะสม 25%{' '}
+                                        <span className="text-[24px] text-yellow-500 animate-blink">
+                                            &nbsp;{returnBonusSummary.returnKeep}&nbsp;
+                                        </span>{' '}
+                                        POL
+                                    </p>
+                                    <p className="text-[18px]">
+                                        ยอดรับ{' '}
+                                        <span className="text-[24px] text-yellow-500 animate-blink">
+                                            &nbsp;{returnBonusSummary.receivedTotal}&nbsp;
+                                        </span>{' '}
+                                        POL
+                                    </p>
+                                    <p className="text-[18px]">
+                                        รับแล้ว
+                                        <span className="text-[24px] text-yellow-500 animate-blink">
+                                            &nbsp;{returnBonusSummary.received}&nbsp;
+                                        </span>{' '}
+                                        POL
+                                    </p>
+                                    <p className="text-[18px]">
+                                         ยอดใหม่{' '}
+                                        <span className="text-[24px] text-yellow-500 animate-blink">
+                                            &nbsp;{returnBonusSummary.newAmount}&nbsp;
+                                        </span>{' '}
+                                        POL
+                                    </p>
                                 </th>
                             </tr>
                             <tr>
