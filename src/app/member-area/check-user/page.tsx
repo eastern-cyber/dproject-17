@@ -11,7 +11,6 @@ import ReferralTree from "@/components/ReferralTree";
 import ReferralSummary from "@/components/ReferralSummary";
 import ReturnBonusData from "@/components/ReturnBonusData";
 
-
 interface UserData {
     userId: string;
     referrerId: string;
@@ -30,8 +29,6 @@ interface ReportData {
 }
 
 export default function RefereePage() {
-    const [expandedUser, setExpandedUser] = useState<string | null>(null);
-
     const account = useActiveAccount();
     const [users, setUsers] = useState<UserData[] | null>(null);
     const [loading, setLoading] = useState(true);
@@ -68,45 +65,6 @@ export default function RefereePage() {
 
     const matchingUser = users.find(user => user.userId === referrerId);
 
-    // Aggregate sentAmount and get the latest sentDate
-    const relevantReports = reportData.filter(report => report.walletAddress === matchingUser?.userId);
-
-    // Get the latest sentDate from the last matching record
-    const latestSentDate = relevantReports.length > 0 
-        ? relevantReports[relevantReports.length - 1].sentDate 
-        : "N/A";
-
-    // Properly sum the total sent amount
-    const totalSentAmount = relevantReports.reduce((sum, report) => sum + Number(report.sentAmount), 0);
-    
-    const matchingUsers = users.filter(
-        (user) => user.referrerId === referrerId && user.userId.trim() !== ""
-    ).map((user, index) => ({ ...user, recordNumber: index + 1 }));
-
-    const walletAddress = account?.address || "";
-
-    const formatDate = (dateString?: string) => {
-        if (!dateString) return "N/A";
-    
-        // Manually parse "07/03/2025, 13:39:10" (DD/MM/YYYY, HH:mm:ss)
-        const match = dateString.match(/^(\d{2})\/(\d{2})\/(\d{4}), (\d{2}):(\d{2}):(\d{2})$/);
-        if (!match) return "Invalid Date";
-    
-        const [, day, month, year, hour, minute, second] = match.map(Number);
-        
-        const date = new Date(year, month - 1, day, hour, minute, second); // Month is 0-based in JS
-    
-        return date.toLocaleDateString("th-TH", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: false, // Ensures 24-hour format
-        });
-    };
-    
     return (
         <main className="p-4 pb-10 min-h-[100vh] flex flex-col items-center">
             <div style={{
@@ -139,11 +97,11 @@ export default function RefereePage() {
                 </div>
                 <WalletBalances walletAddress={account?.address || ""} setReferrerId={setReferrerId} />
                 <Link 
-                    className="mb-8 border border-zinc-500 px-4 py-3 rounded-lg hover:bg-red-600 hover:text-yellow-200 hover:border-yellow-300" 
+                    className="mb-8 border border-zinc-500 px-4 py-3 rounded-lg hover:bg-red-600 hover:text-yellow-200 hover:border-yellow-300 cursor-pointer" 
                     href="http://www.dpjdd.com/">
                     <p className="text-center text-[19px]">ตรวจสอบส่วนแบ่งรายได้</p>
                 </Link>
-                <Link className="mb-8 border border-zinc-500 px-4 py-3 rounded-lg hover:bg-red-600 hover:text-yellow-200 hover:border-yellow-300"
+                <Link className="mb-8 border border-zinc-500 px-4 py-3 rounded-lg hover:bg-red-600 hover:text-yellow-200 hover:border-yellow-300 cursor-pointer"
                     href="/member-area">
                     <p className="text-center text-[19px]">กลับสู่พื้นที่สมาชิก</p>
                 </Link>
@@ -165,7 +123,7 @@ const WalletBalances: React.FC<WalletBalancesProps>= ({ walletAddress, setReferr
         <p className="text-[19px]"><b>เลขกระเป๋าของท่าน</b></p>
         <div className="text-[18px] border border-gray-500 bg-[#1e1d59] p-2 mt-2 rounded">
             <button
-                className="text-yellow-500 hover:text-red-500 text-[18px] break-all"
+                className="text-yellow-500 hover:text-red-500 text-[18px] break-all cursor-pointer"
                 onClick={() => setReferrerId(walletAddress ?? "")}
             >
                 {walletAddress || "ยังไม่ได้เชื่อมกระเป๋า !"}
@@ -181,7 +139,7 @@ function Header() {
     return (
         <header className="flex flex-col items-center mb-4">
             <Link href="/">
-                <Image src={dprojectIcon} alt="" className="m-8 size-[100px]" />
+                <Image src={dprojectIcon} alt="DProject Logo" className="m-8 size-[100px]" />
             </Link>
             <h1 className="text-1xl md:text-4xl font-semibold md:font-bold mb-6">Check User</h1>
             <WalletConnect />

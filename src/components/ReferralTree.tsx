@@ -362,14 +362,14 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
 
           <div className="flex justify-center items-center mt-6 space-x-1 text-sm flex-wrap">
             <button
-              className="px-2 py-1 bg-gray-700 text-white rounded hover:bg-red-600 disabled:opacity-50"
+              className="px-2 py-1 bg-gray-700 text-white rounded hover:bg-red-600 cursor-pointer disabled:opacity-50"
               onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
             >
               |&lt;
             </button>
             <button
-              className="px-2 py-1 bg-gray-700 text-white rounded hover:bg-red-600 disabled:opacity-50"
+              className="px-2 py-1 bg-gray-700 text-white rounded hover:bg-red-600 cursor-pointer disabled:opacity-50"
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
             >
@@ -386,7 +386,7 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
                   key={page}
                   className={`px-3 py-1 rounded ${
                     currentPage === page ? "bg-yellow-500 text-black font-bold" : "bg-gray-700 text-white"
-                    } hover:bg-red-600`}
+                    } hover:bg-red-600 cursor-pointer`}
                   onClick={() => setCurrentPage(page)}
                 >
                   {page}
@@ -394,14 +394,14 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
               ))}
 
             <button
-              className="px-2 py-1 bg-gray-700 text-white rounded hover:bg-red-600 disabled:opacity-50"
+              className="px-2 py-1 bg-gray-700 text-white rounded hover:bg-red-600 cursor-pointer disabled:opacity-50"
               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
             >
               &gt;
             </button>
             <button
-              className="px-2 py-1 bg-gray-700 text-white rounded hover:bg-red-600 disabled:opacity-50"
+              className="px-2 py-1 bg-gray-700 text-white rounded hover:bg-red-600 cursor-pointer disabled:opacity-50"
               onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage === totalPages}
             >
@@ -484,7 +484,7 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
               <div className="w-full justify-items-center text-center">
                 <button
                   onClick={exportReferralSummary}
-                  className="mt-4 mb-2 px-4 py-2 border border-gray-300 text-white rounded hover:text-gray-900 hover:border-gray-300 hover:bg-yellow-500"
+                  className="mt-4 mb-2 px-4 py-2 border border-gray-300 text-white rounded hover:text-gray-900 hover:border-gray-300 hover:bg-yellow-500 cursor-pointer"
                 >
                   📁 Download JSON Table Report
                 </button>
@@ -552,7 +552,7 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
                               รับครั้งล่าสุด<br />
                               <Link
                                 href={`https://polygonscan.com/address/${input}`}
-                                className="text-[18px] text-blue-300 hover:text-red-500"
+                                className="text-[18px] text-blue-300 hover:text-red-500 cursor-pointer "
                                 target="_blank">
                                 <p className="mt-3">
                                   {lastReceivedDate ?? 'ยังไม่มีรายการรับ'}

@@ -188,7 +188,7 @@ const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, re
                     key={i}
                     className={`mx-1 px-2 py-1 rounded ${
                         i === currentPage ? "bg-yellow-500 text-black font-bold" : "bg-gray-700 text-white"
-                    } hover:bg-red-600`}
+                    } hover:bg-red-600 cursor-pointer`}
                     onClick={() => changePage(i)}
                 >
                     {i}
@@ -269,7 +269,7 @@ const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, re
                                         <th className="text-[18px] font-normal text-left border border-gray-400 px-4 py-2 break-all relative">
                                             <b>เลขกระเป๋า:</b>&nbsp;
                                             <button
-                                                className="text-left font-normal text-[18px] text-yellow-500 hover:text-red-500 break-all"
+                                                className="text-left font-normal text-[18px] text-yellow-500 hover:text-red-500 cursor-pointer break-all"
                                                 onClick={() => setReferrerId(user.userId)}
                                             >
                                                 {user.userId}
@@ -278,7 +278,7 @@ const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, re
                                             <b>อีเมล:</b> {user.email || "N/A"}
 
                                             <button
-                                                className="absolute top-2 right-4 text-yellow-500 hover:text-red-500"
+                                                className="absolute top-2 right-4 text-yellow-500 hover:text-red-500 cursor-pointer"
                                                 onClick={() => setExpandedUser(expandedUser === user.userId ? null : user.userId)}
                                             >
                                                 {expandedUser === user.userId ? "⏶" : "⏷"}
@@ -323,14 +323,14 @@ const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, re
 
                     <div className="flex justify-center items-center mt-6 space-x-1 text-sm flex-wrap">
                         <button
-                            className="px-2 py-1 bg-gray-700 text-white rounded hover:bg-red-600 disabled:opacity-50"
+                            className="px-2 py-1 bg-gray-700 text-white rounded hover:bg-red-600 cursor-pointer disabled:opacity-50"
                             onClick={() => changePage(1)}
                             disabled={currentPage === 1}
                         >
                             |&lt;
                         </button>
                         <button
-                            className="px-2 py-1 bg-gray-700 text-white rounded hover:bg-red-600 disabled:opacity-50"
+                            className="px-2 py-1 bg-gray-700 text-white rounded hover:bg-red-600 cursor-pointer disabled:opacity-50"
                             onClick={() => changePage(currentPage - 1)}
                             disabled={currentPage === 1}
                         >
@@ -338,14 +338,14 @@ const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, re
                         </button>
                         {renderPageNumbers()}
                         <button
-                            className="px-2 py-1 bg-gray-700 text-white rounded hover:bg-red-600 disabled:opacity-50"
+                            className="px-2 py-1 bg-gray-700 text-white rounded hover:bg-red-600 cursor-pointer disabled:opacity-50"
                             onClick={() => changePage(currentPage + 1)}
                             disabled={currentPage === totalPages}
                         >
                             &gt;
                         </button>
                         <button
-                            className="px-2 py-1 bg-gray-700 text-white rounded hover:bg-red-600 disabled:opacity-50"
+                            className="px-2 py-1 bg-gray-700 text-white rounded hover:bg-red-600 cursor-pointer disabled:opacity-50"
                             onClick={() => changePage(totalPages)}
                             disabled={currentPage === totalPages}
                         >
@@ -423,7 +423,7 @@ const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, re
                                         รับครั้งล่าสุด<br />
                                         <Link
                                             href={`https://polygonscan.com/address/${referrerId}`}
-                                            className="text-[18px] text-blue-300 hover:text-red-500"
+                                            className="text-[18px] text-blue-300 hover:text-red-500 cursor-pointer"
                                             target="_blank"
                                         >
                                             <p className="mt-3">{latestReturnBonusDate}</p>
