@@ -1,12 +1,12 @@
 "use client";
 
-import { client } from "@/app/client";
+import { client } from "@/lib/client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { inAppWallet, walletConnect } from "thirdweb/wallets";
 import WalletConnect from "../../../components/WalletConnect";
 import { ConnectButton, useActiveAccount } from "thirdweb/react";
-import dprojectIcon from "@public/DProjectLogo_650x600.svg";
+import dprojectIcon from "../../../../public/DProjectLogo_650x600.svg";
 import { defineChain, getContract } from "thirdweb";
 import { polygon } from "thirdweb/chains";
 import Footer from "@/components/Footer";
