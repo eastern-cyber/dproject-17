@@ -1,9 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import dprojectIcon from "@public/DProjectLogo_650x600.svg";
-import { chain } from "@/app/chain";
-import { client } from "@/app/client";
+import dprojectIcon from "../../../../public/DProjectLogo_650x600.svg";
 import { ConnectButton, darkTheme } from "thirdweb/react";
 import WalletConnect from "@/components/WalletConnect";
 import { useRouter } from "next/navigation";
