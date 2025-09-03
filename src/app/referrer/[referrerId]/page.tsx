@@ -27,14 +27,26 @@ interface ReferrerData {
   tokenId?: string;
 }
 
-export default function ReferrerDetails({ params }: { params: { referrerId: string } }) {
+export default function ReferrerDetails({ params }: { params: Promise<{ referrerId: string }> }) {
+    const [resolvedParams, setResolvedParams] = useState<{ referrerId: string }>({ referrerId: '' });
     const [referrerData, setReferrerData] = useState<ReferrerData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
     useEffect(() => {
+        // Resolve the async params
+        const resolveParams = async () => {
+            const resolved = await params;
+            setResolvedParams(resolved);
+        };
+        resolveParams();
+    }, [params]);
+
+    useEffect(() => {
         const fetchReferrerData = async () => {
+            if (!resolvedParams.referrerId) return;
+
             try {
                 setLoading(true);
                 setError(null);
@@ -52,15 +64,15 @@ export default function ReferrerDetails({ params }: { params: { referrerId: stri
                 // Option 1: If data is an array directly
                 if (Array.isArray(data)) {
                     referrer = data.find((item: UserData) => 
-                        item.userId?.toLowerCase() === params.referrerId.toLowerCase() ||
-                        item.walletAddress?.toLowerCase() === params.referrerId.toLowerCase()
+                        item.userId?.toLowerCase() === resolvedParams.referrerId.toLowerCase() ||
+                        item.walletAddress?.toLowerCase() === resolvedParams.referrerId.toLowerCase()
                     );
                 } 
                 // Option 2: If data has a users property that contains the array
                 else if (data.users && Array.isArray(data.users)) {
                     referrer = data.users.find((item: UserData) => 
-                        item.userId?.toLowerCase() === params.referrerId.toLowerCase() ||
-                        item.walletAddress?.toLowerCase() === params.referrerId.toLowerCase()
+                        item.userId?.toLowerCase() === resolvedParams.referrerId.toLowerCase() ||
+                        item.walletAddress?.toLowerCase() === resolvedParams.referrerId.toLowerCase()
                     );
                 }
                 // Option 3: If data has a different structure
@@ -68,8 +80,8 @@ export default function ReferrerDetails({ params }: { params: { referrerId: stri
                     // Try to find the user by ID in any nested structure
                     referrer = Object.values(data).find((item: unknown) => 
                         item && typeof item === 'object' && 
-                        ((item as UserData).userId?.toLowerCase() === params.referrerId.toLowerCase() ||
-                         (item as UserData).walletAddress?.toLowerCase() === params.referrerId.toLowerCase())
+                        ((item as UserData).userId?.toLowerCase() === resolvedParams.referrerId.toLowerCase() ||
+                         (item as UserData).walletAddress?.toLowerCase() === resolvedParams.referrerId.toLowerCase())
                     ) as UserData;
                 }
 
@@ -90,14 +102,14 @@ export default function ReferrerDetails({ params }: { params: { referrerId: stri
             }
         };
 
-        if (params.referrerId) {
+        if (resolvedParams.referrerId) {
             fetchReferrerData();
         }
-    }, [params.referrerId]);
+    }, [resolvedParams.referrerId]);
 
     const navigateToConfirmPage = () => {
         const data = {
-            var1: params.referrerId || "N/A", // Referrer ID from params
+            var1: resolvedParams.referrerId || "N/A", // Referrer ID from params
             var2: referrerData?.email || "N/A", // Email from referrerData
             var3: referrerData?.name || "N/A", // Name from referrerData
             var4: referrerData?.tokenId || "N/A", // Token ID from referrerData
@@ -141,7 +153,7 @@ export default function ReferrerDetails({ params }: { params: { referrerId: stri
                     ) : referrerData ? (
                         <div className="mt-4 text-center gap-6 bg-gray-900 p-4 border border-1 border-gray-400">
                             <p className="text-lg text-gray-300">
-                                <b>เลขกระเป๋าผู้แนะนำ:</b> {params.referrerId ? `${params.referrerId.slice(0, 6)}...${params.referrerId.slice(-4)}` : "ไม่พบกระเป๋า"}<br />
+                                <b>เลขกระเป๋าผู้แนะนำ:</b> {resolvedParams.referrerId ? `${resolvedParams.referrerId.slice(0, 6)}...${resolvedParams.referrerId.slice(-4)}` : "ไม่พบกระเป๋า"}<br />
                             </p>
                             <p className="text-lg text-gray-300">
                                 <b>อีเมล:</b> {referrerData.email}
@@ -160,7 +172,7 @@ export default function ReferrerDetails({ params }: { params: { referrerId: stri
                     <div className="items-centerflex border border-gray-400 bg-[#2b2b59] p-2.5 mt-5 w-full">
                         <p className="text-[18px] break-all">
                             <center>
-                            {params.referrerId ? `${params.referrerId}` : "ไม่พบกระเป๋า"}
+                            {resolvedParams.referrerId ? `${resolvedParams.referrerId}` : "ไม่พบกระเป๋า"}
                             </center>
                         </p>
                     </div>

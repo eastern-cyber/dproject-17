@@ -39,7 +39,6 @@ interface Props {
 
 const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, reportData }) => {
     const [expandedUser, setExpandedUser] = useState<string | null>(null);
-    const [transactionData, setTransactionData] = useState<TransactionData[]>([]);
     const [userPolMap, setUserPolMap] = useState<{ [key: string]: number }>({});
     const [returnBonusTotalPol, setReturnBonusTotalPol] = useState<number>(0);
     const [latestReturnBonusDate, setLatestReturnBonusDate] = useState<string>("N/A");
@@ -50,11 +49,9 @@ const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, re
         fetch("https://raw.githubusercontent.com/eastern-cyber/dproject-admin-1.0.1/main/public/CaringBonus-Payout-Success_Polygonscan.json")
             .then((response) => response.json())
             .then((data: TransactionData[]) => {
-                setTransactionData(data);
-    
                 // Create a map to store the total POL for each user
                 const polMap: { [key: string]: number } = {};
-    
+
                 data.forEach((transaction) => {
                     const toAddress = transaction.To.toLowerCase();
                     const valueOut = parseFloat(transaction["Value_OUT(POL)"]);
@@ -62,7 +59,7 @@ const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, re
                         polMap[toAddress] = (polMap[toAddress] || 0) + valueOut;
                     }
                 });
-    
+
                 setUserPolMap(polMap);
             })
             .catch((error) => {
@@ -74,9 +71,6 @@ const ReturnBonusData: React.FC<Props> = ({ referrerId, setReferrerId, users, re
     const matchingUsers = users.filter(
         (user) => user.referrerId === referrerId && user.userId.trim() !== ""
     ).map((user, index) => ({ ...user, recordNumber: index + 1 }));
-
-    const relevantReports = reportData.filter(report => report.walletAddress === matchingUser?.userId);
-    const totalSentAmount = relevantReports.reduce((sum, report) => sum + Number(report.sentAmount), 0);
 
     const formatDate = (dateString?: string) => {
         if (!dateString) return "N/A";
