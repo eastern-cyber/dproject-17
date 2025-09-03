@@ -1,11 +1,11 @@
+//src/app/referrer/confirm/page.tsx
 "use client";
 
 import { client } from "@/lib/client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { inAppWallet, walletConnect } from "thirdweb/wallets";
 import WalletConnect from "../../../components/WalletConnect";
-import { ConnectButton, useActiveAccount } from "thirdweb/react";
+import { useActiveAccount } from "thirdweb/react";
 import dprojectIcon from "../../../../public/DProjectLogo_650x600.svg";
 import { defineChain, getContract } from "thirdweb";
 import { polygon } from "thirdweb/chains";
@@ -18,10 +18,6 @@ const RECIPIENT_ADDRESS = "0x3BBf139420A8Ecc2D06c64049fE6E7aE09593944";
 const EXCHANGE_RATE_REFRESH_INTERVAL = 300000; // 5 minutes in ms
 const MEMBERSHIP_FEE_THB = 400;
 const EXCHANGE_RATE_BUFFER = 0.1; // 0.1 THB buffer to protect against fluctuations
-
-// Calculate THB amounts
-const seventyPercentTHB = MEMBERSHIP_FEE_THB * 0.7;
-const thirtyPercentTHB = MEMBERSHIP_FEE_THB * 0.3;
 
 type UserData = {
   var1: string;
@@ -37,16 +33,11 @@ type MemberUser = {
   email?: string;
   name?: string;
   tokenId?: number;
-  // userCreated?: string;
   planA?: {
     dateTime: string;
     POL: string;
     rateTHBPOL: string;
   };
-};
-
-type GitHubUserData = {
-  [key: string]: MemberUser;
 };
 
 const ConfirmPage = () => {
@@ -61,7 +52,6 @@ const ConfirmPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [txHash, setTxHash] = useState<string | null>(null);
   const [polBalance, setPolBalance] = useState<string>("0");
   const [isMember, setIsMember] = useState(false);
   const [loadingMembership, setLoadingMembership] = useState(false);
@@ -235,14 +225,8 @@ const ConfirmPage = () => {
     return polAmount.toFixed(4);
   };
 
-  const calculatePolAmountWithCurrentRate = () => {
-    if (!exchangeRate) return null;
-    const polAmount = MEMBERSHIP_FEE_THB / exchangeRate;
-    return polAmount.toFixed(4);
-  };
-
   // IPFS Storage Function
-  const storeReportInIPFS = async (report: any) => {
+  const storeReportInIPFS = async (report: unknown) => {
     try {
       const response = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
         method: 'POST',
