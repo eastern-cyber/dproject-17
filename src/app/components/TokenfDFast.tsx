@@ -1,6 +1,7 @@
+//src/app/components/TokenfDFast.tsx
 import { TokenProvider, TokenIcon } from "thirdweb/react";
-import { client } from "../client";
-import { chain } from "../chain";
+import { client } from "@/lib/client";
+import { chain } from "@/lib/chain";
 
 const TokenDFast: React.FC = () => {
 
