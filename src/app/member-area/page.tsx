@@ -1,14 +1,13 @@
+//src/app/member-area/page.tsx
 "use client";
 
 import Image from "next/image";
-import {  ConnectButton, darkTheme, MediaRenderer, TransactionButton, useActiveAccount, useReadContract } from "thirdweb/react";
+import { MediaRenderer, TransactionButton, useActiveAccount, useReadContract } from "thirdweb/react";
 import dprojectIcon from "/public/DProjectLogo_650x600.svg";
 import { client } from "@/lib/client";
-import { chain  } from "@/lib/chain";
 import { getContract, toEther } from "thirdweb";
 import { defineChain, polygon } from "thirdweb/chains";
-import { claimTo as claimERC1155, balanceOf as balanceOfERC1155 } from "thirdweb/extensions/erc1155";
-import { claimTo as claimERC20, balanceOf as balanceOfERC20 } from "thirdweb/extensions/erc20";
+import { balanceOf as balanceOfERC20 } from "thirdweb/extensions/erc20";
 import { contract } from "../../../utils/contracts";
 import { getContractMetadata } from "thirdweb/extensions/common";
 import Link from "next/link";
@@ -54,7 +53,7 @@ export default function Refferrer() {
       }
 
     return (
-        <main className="flex p-4 pb-10 min-h-[100vh] flex flex-col items-center">
+        <main className="flex flex-col p-4 pb-10 min-h-[100vh] items-center">
             <div style={{
                     display: "flex",
                     flexDirection: "column",
@@ -70,9 +69,6 @@ export default function Refferrer() {
                 <WalletConnect />
                 </div>
                 <NFTMetadata />
-                {/* <div className="flex flex-col items-center mb-6">
-                    <ClaimButtons walletAddress={account?.address || ""}/>
-                </div> */}
                 <div className="flex flex-col justify-center items-center">
                     <WalletBalances walletAddress={account?.address || ""}/>
                 </div>
@@ -98,7 +94,7 @@ function  Header() {
             <Link href="/" passHref>
                 <Image
                     src={dprojectIcon}
-                    alt=""
+                    alt="DProject Logo"
                     className="mb-4 size-[100px] md:size-[100px]"
                     style={{
                         filter: "drop-shadow(0px 0px 24px #a726a9a8"
@@ -117,49 +113,7 @@ type walletAddresssProps = {
     walletAddress?: string;
 };
 
-const ClaimButtons: React.FC<walletAddresssProps> = ({ walletAddress }) => {
-    const nftContract = getContract({
-        client: client,
-        chain: defineChain(polygon),
-        address: "0x2a61627c3457cCEA35482cAdEC698C7360fFB9F2"
-    });
-    const dfastContract = getContract({
-        client: client,
-        chain: defineChain(polygon),
-        address: "0xca23b56486035e14F344d6eb591DC27274AF3F47"
-    })
-
-    return (
-        <div className="flex flex-col gap-4 md:gap-8">
-            <TransactionButton
-                // className="border bg-zinc-800 border-zinc-500 px-4 py-3 rounded-lg hover:bg-zinc-100 transition-colors hover:border-zinc-300"
-                transaction={() => claimERC1155({
-                    contract: nftContract,
-                    to: walletAddress || "",
-                    tokenId: 0n,
-                    quantity: 1n
-                })}
-                onTransactionConfirmed={async () => {
-                    alert("ทำรายการซื้อ คูปอง 3K NFT เรียบร้อย ");
-                }}
-            >ซื้อคูปอง 3K NFT</TransactionButton>
-        </div>
-    )
-};
-
 const WalletBalances: React.FC<walletAddresssProps> = ({ walletAddress }) => {
-    const { data: nftBalance } = useReadContract(
-        balanceOfERC1155,
-        {
-            contract: getContract({
-                client: client,
-                chain: defineChain(polygon),
-                address: "0x2a61627c3457cCEA35482cAdEC698C7360fFB9F2"
-            }),
-            owner: walletAddress || "",
-            tokenId: 0n
-        }
-    );
     const { data: ktdfiBalance } = useReadContract(
         balanceOfERC20,
         {
@@ -234,30 +188,28 @@ const WalletBalances: React.FC<walletAddresssProps> = ({ walletAddress }) => {
             
             <div className="mt-8 flex flex-col justify-items-left">
                 <div className="flex mt-3 gap-2 md:gap-2">
-                    <img className="h-6 w-6 rounded-full mr-1" src="https://polygonscan.com/token/images/polygonmatic_new_32.png" />
+                    <Image width={24} height={24} className="h-6 w-6 rounded-full mr-1" src="https://polygonscan.com/token/images/polygonmatic_new_32.png" alt="POL Token" />
                     เหรียญ POL: {walletAddress? 
                     new Intl.NumberFormat("en-US",{minimumFractionDigits: 2,maximumFractionDigits: 6,})
                     .format(Number(toEther(polBalance || 0n))): "0"}
-                    {/* {walletAddress ? (Number(toEther(polBalance || 0n))).toFixed(2) : "0"} */}
                 </div>
                 <div className="flex mt-3 gap-2 md:gap-2">
-                    <img className="h-6 w-6 rounded-full mr-1" src="https://ipfs.io/ipfs/QmSLo5e3PSBWgF3wysabPzsBjoRLngrFoVNrGwgL3vm2Zn/KTDFI_600x600.png" />
+                    <Image width={24} height={24} className="h-6 w-6 rounded-full mr-1" src="https://ipfs.io/ipfs/QmSLo5e3PSBWgF3wysabPzsBjoRLngrFoVNrGwgL3vm2Zn/KTDFI_600x600.png" alt="KTDFI Token" />
                     เหรียญ KTDFI: {walletAddress ? (Number(ktdfiBalance) / 1e18).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
                 </div>
 
                 <div className="flex mt-3 gap-2 md:gap-2">
-                    <img className="h-6 w-6 rounded-full mr-1" src="https://polygonscan.com/token/images/centre-usdc_32.png" />
+                    <Image width={24} height={24} className="h-6 w-6 rounded-full mr-1" src="https://polygonscan.com/token/images/centre-usdc_32.png" alt="USDC Token" />
                     เหรียญ USDC: {walletAddress ? (Number(usdcBalance) / 1_000_000).toFixed(2) : "0"}
                 </div>                
                 <div className="flex mt-3 gap-2 md:gap-2">
-                    <img className="h-6 w-6 rounded-full mr-1" src="https://polygonscan.com/token/images/tether_32.png" />
+                    <Image width={24} height={24} className="h-6 w-6 rounded-full mr-1" src="https://polygonscan.com/token/images/tether_32.png" alt="USDT Token" />
                     เหรียญ USDT: {walletAddress ? (Number(usdtBalance) / 1_000_000).toFixed(2) : "0"}
                 </div>
                 
                 <div className="mt-6 flex justify-items-center gap-1 md:gap-4">
                         <Link target="_blank" href="https://opensea.io/account/collected">
-                            {/* <NFTMetadata /> */}
-                            <img className="flex h-8 w-8 mr-1" src="/KokKokKok_Logo_WhiteBG_686x686.png" alt="" />
+                            <Image width={32} height={32} className="flex h-8 w-8 mr-1" src="/KokKokKok_Logo_WhiteBG_686x686.png" alt="KokKokKok NFT" />
                         </Link>
                         <Link target="_blank" href="https://opensea.io/account/collected">
                             <p style={{alignItems: "center", justifyContent: "center", fontSize: "18px"}}>
