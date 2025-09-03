@@ -1,3 +1,4 @@
+//src/app/layout.tsx
 import type { Metadata } from 'next';
 import { ThirdwebProvider } from "thirdweb/react";
 import { Inter } from "next/font/google";
@@ -19,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className="antialiased"
+        className={`${inter.className} antialiased`}
         suppressHydrationWarning={true}
       >
         <ThirdwebProvider>

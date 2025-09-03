@@ -1,3 +1,4 @@
+//src/app/member-area/check-user/page.tsx
 "use client";
 
 import Image from "next/image";
@@ -62,8 +63,6 @@ export default function RefereePage() {
 
     if (loading) return <div className="p-6">Loading...</div>;
     if (!users || !reportData) return <div className="p-6 text-red-600">Failed to load data.</div>;
-
-    const matchingUser = users.find(user => user.userId === referrerId);
 
     return (
         <main className="p-4 pb-10 min-h-[100vh] flex flex-col items-center">

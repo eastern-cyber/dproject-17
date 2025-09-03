@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ConnectButton, MediaRenderer, useActiveAccount, useReadContract,darkTheme } from "thirdweb/react";
+import { useActiveAccount, useReadContract } from "thirdweb/react";
 import dprojectIcon from "../../public/DProjectLogo_650x600.svg";
 import { getContractMetadata } from "thirdweb/extensions/common";
 import { contract } from "../../utils/contracts";
@@ -125,7 +125,7 @@ function ThirdwebResources() {
 
       <ArticleCard
         title="ต้นแบบ Application ก๊อกๆๆ"
-        href="https://3k.aseanquality.com/"
+        href="https://3k.dfi.fund/templates/index.html/"
         description="3K หรือ Kok Kok Kok จะต่อยอดจาก SocialApp ยอดนิยม"
       />
 
@@ -144,7 +144,7 @@ function ArticleCard(props: {
   description: string;
 }) {
   return (
-    <a
+    <Link
       href={props.href + "?utm_source=next-template"}
       className="flex flex-col border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 transition-colors hover:border-zinc-700 h-full"
     >
@@ -152,6 +152,6 @@ function ArticleCard(props: {
         <h2 className="text-lg font-semibold mb-2">{props.title}</h2>
         <p className="text-sm text-zinc-400">{props.description}</p>
       </article>
-    </a>
+    </Link>
   );
 }
