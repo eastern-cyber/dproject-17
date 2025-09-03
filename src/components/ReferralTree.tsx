@@ -1,6 +1,6 @@
 //src/components/ReferralTree.tsx
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 
 interface User {
   userId: string;
@@ -24,10 +24,20 @@ interface ReferralTreeProps {
   referrerId: string;
 }
 
+interface PayoutTransaction {
+  "DateTime (UTC)": string;
+  To: string;
+  "Value_OUT(POL)": string;
+}
+
 const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
   const [input, setInput] = useState(referrerId);
   const [users, setUsers] = useState<User[]>([]);
   const [tree, setTree] = useState<TreeNode[]>([]);
+  const [payoutData, setPayoutData] = useState<PayoutTransaction[]>([]);
+  const [receivedAmount, setReceivedAmount] = useState(0);
+  const [lastReceivedDate, setLastReceivedDate] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     setInput(referrerId);
@@ -45,14 +55,7 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (users.length > 0 && input) {
-      const builtTree = buildTree(input, 1);
-      setTree(builtTree);
-    }
-  }, [users, input]);
-
-  const buildTree = (refId: string, generation: number): TreeNode[] => {
+  const buildTree = useCallback((refId: string, generation: number): TreeNode[] => {
     if (generation > 10) return [];
 
     const children = users
@@ -68,28 +71,24 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
           user,
           generation,
           children: childNodes,
-          expanded: false, // not auto-expand all by default
+          expanded: false,
           totalReferrals,
         };
       });
 
     return children;
-  };
+  }, [users]);
+
+  useEffect(() => {
+    if (users.length > 0 && input) {
+      const builtTree = buildTree(input, 1);
+      setTree(builtTree);
+    }
+  }, [users, input, buildTree]);
 
   const toggleNode = (node: TreeNode) => {
     node.expanded = !node.expanded;
     setTree([...tree]);
-  };
-
-  const exportToJson = () => {
-    const json = JSON.stringify(tree, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `referral-tree-${referrerId}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
   };
 
   const exportReferralSummary = () => {
@@ -97,7 +96,7 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
   
     const flattenTree = (nodes: TreeNode[]) => {
       for (const node of nodes) {
-        map.set(node.user.tokenId, node); // tokenId as key
+        map.set(node.user.tokenId, node);
         flattenTree(node.children);
       }
     };
@@ -186,23 +185,19 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
     return nodes.reduce((acc, node) => acc + 1 + countTotalUsers(node.children), 0);
   };
 
-  // Add this helper function above the return statement
-  const getGenerationSummary = (nodes: TreeNode[], summary: Record<number, number> = {}) => {
+  const getGenerationSummary = useCallback((nodes: TreeNode[], summary: Record<number, number> = {}) => {
     for (const node of nodes) {
       summary[node.generation] = (summary[node.generation] || 0) + 1;
       getGenerationSummary(node.children, summary);
     }
     return summary;
-  };
-
-  const [payoutData, setPayoutData] = useState<any[]>([]);
-  const [receivedAmount, setReceivedAmount] = useState(0);
+  }, []);
 
   useEffect(() => {
     const fetchPayoutData = async () => {
       try {
         const res = await fetch('https://raw.githubusercontent.com/eastern-cyber/dproject-admin-1.0.2/main/public/CaringBonus-Payout-Success_Polygonscan.json');
-        const data = await res.json();
+        const data: PayoutTransaction[] = await res.json();
         setPayoutData(data);
       } catch (error) {
         console.error("Error fetching payout data:", error);
@@ -212,103 +207,62 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
     fetchPayoutData();
   }, []);
 
-  // useEffect(() => {
-  //   if (!input || payoutData.length === 0) return;
-
-  //   const totalReceivedFromChain = payoutData
-  //     .filter((tx: any) => tx.To.toLowerCase() === input.toLowerCase())
-  //     .reduce((sum, tx: any) => sum + parseFloat(tx["Value_OUT(POL)"] || "0"), 0);
-
-  //   setReceivedAmount(totalReceivedFromChain);
-  // }, [input, payoutData]);
   useEffect(() => {
     if (!input || payoutData.length === 0) return;
   
-    const matchedTxs = payoutData.filter((tx: any) => tx.To.toLowerCase() === input.toLowerCase());
+    const matchedTxs = payoutData.filter((tx: PayoutTransaction) => 
+      tx.To.toLowerCase() === input.toLowerCase()
+    );
   
     const totalReceivedFromChain = matchedTxs.reduce(
-      (sum, tx: any) => sum + parseFloat(tx["Value_OUT(POL)"] || "0"), 0
+      (sum, tx: PayoutTransaction) => sum + parseFloat(tx["Value_OUT(POL)"] || "0"), 0
     );
   
     setReceivedAmount(totalReceivedFromChain);
   
-    // Find the latest transaction (based on DateTime UTC)
-    const latestTx = matchedTxs.reduce((latest, current) => {
-      return new Date(current["DateTime (UTC)"]) > new Date(latest["DateTime (UTC)"]) ? current : latest;
-    }, matchedTxs[0]);
+    if (matchedTxs.length > 0) {
+      const latestTx = matchedTxs.reduce((latest: PayoutTransaction, current: PayoutTransaction) => {
+        return new Date(current["DateTime (UTC)"]) > new Date(latest["DateTime (UTC)"]) ? current : latest;
+      }, matchedTxs[0]);
   
-    if (latestTx) {
       setLastReceivedDate(formatUTCToBangkok(latestTx["DateTime (UTC)"]));
     }
   }, [input, payoutData]);
-  
-  const {
-    totalMembers,
-    totalUnilevel,
-    totalSaved,
-    totalReceived: totalExpected,
-  } = React.useMemo(() => {
-    const genSummary = Object.entries(getGenerationSummary(tree))
-      .sort((a, b) => Number(a[0]) - Number(b[0]));
-  
-    let totalMembers = 0;
-    let totalUnilevel = 0;
-    let totalSaved = 0;
-    let totalReceived = 0;
-  
-    genSummary.forEach(([_, count]) => {
-      const unilevel = count * 0.8;
-      const saved = unilevel * 0.25;
-      const received = unilevel - saved;
-  
-      totalMembers += Number(count);
-      totalUnilevel += unilevel;
-      totalSaved += saved;
-      totalReceived += received;
-    });
-  
-    return {
-      totalMembers,
-      totalUnilevel,
-      totalSaved,
-      totalReceived,
-    };
-  }, [tree]);
-  
-  // const formatUTCToBangkok = (utcDateStr: string): string => {
-  //   const utcDate = new Date(utcDateStr + ' UTC'); // Make sure it's treated as UTC
-  //   const bangkokTime = new Date(utcDate.getTime() + 7 * 60 * 60 * 1000); // UTC+7
-  //   const pad = (n: number) => n.toString().padStart(2, '0');
-  
-  //   return `${pad(bangkokTime.getDate())}/${pad(bangkokTime.getMonth() + 1)}/${bangkokTime.getFullYear()} ` +
-  //          `${pad(bangkokTime.getHours())}:${pad(bangkokTime.getMinutes())}:${pad(bangkokTime.getSeconds())}`;
-  // };
-  
-  function formatUTCToBangkok(utcString: string): string {
+
+  const formatUTCToBangkok = (utcString: string): string => {
     const utcDate = new Date(utcString);
-  
-    // Convert to Bangkok time (UTC+7)
     const bangkokDate = new Date(utcDate.getTime() + 7 * 60 * 60 * 1000);
-  
+
     const dd = String(bangkokDate.getDate()).padStart(2, '0');
-    const mm = String(bangkokDate.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+    const mm = String(bangkokDate.getMonth() + 1).padStart(2, '0');
     const yyyy = bangkokDate.getFullYear();
-  
+
     const HH = String(bangkokDate.getHours()).padStart(2, '0');
     const min = String(bangkokDate.getMinutes()).padStart(2, '0');
     const sec = String(bangkokDate.getSeconds()).padStart(2, '0');
-  
+
     return `${dd}/${mm}/${yyyy} ${HH}:${min}:${sec}`;
-  }
-  
-  const [lastReceivedDate, setLastReceivedDate] = useState<string | null>(null);
+  };
+
+  const { totalExpected } = useMemo(() => {
+    const genSummary = Object.entries(getGenerationSummary(tree))
+      .sort((a, b) => Number(a[0]) - Number(b[0]));
+
+    let totalReceived = 0;
+
+    genSummary.forEach(([_, count]) => {
+      const unilevel = count * 0.8;
+      const received = unilevel - (unilevel * 0.25);
+      totalReceived += received;
+    });
+
+    return {
+      totalExpected: totalReceived,
+    };
+  }, [tree, getGenerationSummary]);
 
   const rowsPerPage = 10;
-  const [currentPage, setCurrentPage] = useState(1);
-
-  // Flatten the tree into a paginated list
-  const flattenedRows = renderTree(tree); // assuming this returns an array of <tr> elements
-
+  const flattenedRows = renderTree(tree);
   const totalPages = Math.ceil(flattenedRows.length / rowsPerPage);
   const paginatedRows = flattenedRows.slice(
     (currentPage - 1) * rowsPerPage,
@@ -326,15 +280,6 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
           onChange={(e) => setInput(e.target.value)}
           className="text-[18px] text-center border border-gray-400 p-2 rounded mt-4 w-full bg-gray-900 text-gray-300 break-all"
         />
-        {/* <button
-          onClick={() => {
-            const root = buildTree(input, 1);
-            setTree(root);
-          }}
-          className="mt-2 px-4 py-2 border border-gray-300 text-white rounded hover:bg-green-600"
-        >
-          🔍 ค้นหา
-        </button> */}
       </div>
 
       {tree.length > 0 && (
@@ -413,18 +358,9 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
               </div>
           </div>
 
-          {/* <div className="w-full justify-items-center text-center">
-            <button
-              onClick={exportToJson}
-              className="mt-4 mb-2 px-4 py-2 border border-gray-300 text-white rounded hover:text-gray-900 hover:border-gray-300 hover:bg-red-600"
-            >
-              📁 Export JSON
-            </button>
-          </div> */}
           {tree.length > 0 && (
             <>
               <div className="mt-6">
-
                 <table className="table-auto w-full border-collapse border border-gray-400 text-gray-300">
                   <thead>
                     <tr className="bg-gray-900 text-[19px] font-bold">
@@ -440,10 +376,10 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
                     const genSummary = Object.entries(getGenerationSummary(tree))
                       .sort((a, b) => Number(a[0]) - Number(b[0]));
 
-                    let totalMembers = 0;
-                    let totalUnilevel = 0;
-                    let totalSaved = 0;
-                    let totalReceived = 0;
+                    let membersTotal = 0;
+                    let unilevelTotal = 0;
+                    let savedTotal = 0;
+                    let receivedTotal = 0;
 
                     return (
                       <>
@@ -452,10 +388,10 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
                           const saved = unilevel * 0.25;
                           const received = unilevel - saved;
 
-                          totalMembers += count;
-                          totalUnilevel += unilevel;
-                          totalSaved += saved;
-                          totalReceived += received;
+                          membersTotal += count;
+                          unilevelTotal += unilevel;
+                          savedTotal += saved;
+                          receivedTotal += received;
 
                           return (
                             <tr key={gen}>
@@ -469,10 +405,10 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
                         })}
                             <tr className="bg-gray-900 text-gray-300 text-[19px] font-bold">
                               <td className="border border-gray-400 px-5 py-3 text-[22px] text-center">รวม</td>
-                              <td className="border border-gray-400 px-5 py-3 text-center text-yellow-200">{totalMembers}</td>
-                              <td className="border border-gray-400 px-5 py-3 text-right text-yellow-200">{totalUnilevel.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                              <td className="border border-gray-400 px-5 py-3 text-right text-yellow-200">{totalSaved.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                              <td className="border border-gray-400 px-5 py-3 text-right text-yellow-200">{totalReceived.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                              <td className="border border-gray-400 px-5 py-3 text-center text-yellow-200">{membersTotal}</td>
+                              <td className="border border-gray-400 px-5 py-3 text-right text-yellow-200">{unilevelTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                              <td className="border border-gray-400 px-5 py-3 text-right text-yellow-200">{savedTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                              <td className="border border-gray-400 px-5 py-3 text-right text-yellow-200">{receivedTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             </tr>
                           </>
                         );
@@ -491,7 +427,6 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
 
                 <div className="w-full mt-6">
                   <table className="table-auto w-full border-collapse border border-gray-400 text-gray-300">
-                    {/* Section 1 */}
                     <thead>
                       <tr className="bg-gray-900 text-[19px] font-bold">
                         <th className="border border-gray-400 py-3 px-4 text-center">
@@ -500,7 +435,6 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
                       </tr>
                     </thead>
 
-                    {/* Section 2 */}
                     <tbody>
                       <tr className="w-full">
                         <th className="border border-gray-400 px-4 py-2">
@@ -543,7 +477,6 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ referrerId }) => {
                       </tr>
                     </tbody>
 
-                    {/* Section 3 */}
                     <tfoot>
                       <tr>
                         <th className="border border-gray-400 px-4 py-2">

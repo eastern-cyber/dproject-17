@@ -1,10 +1,9 @@
+//src/app/premium-area/page.tsx
 "use client";
 import React from 'react'
 import Image from "next/image";
-import {  ConnectButton, useActiveAccount, darkTheme } from "thirdweb/react";
+import { useActiveAccount } from "thirdweb/react";
 import dprojectIcon from "../../../public/DProjectLogo_650x600.svg";
-import { client } from "../client";
-import { chain  } from "../chain";
 import Link from 'next/link';
 import WalletConnect from '@/components/WalletConnect';
 import Footer from '@/components/Footer';
