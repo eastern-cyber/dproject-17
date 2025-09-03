@@ -41,9 +41,9 @@ export default function PremiumArea() {
                 <Footer />
             </div>
             <div className="flex flex-col items-center">
-                    <a 
+                    <Link 
                         className="flex flex-col mt-4 border border-zinc-500 px-4 py-3 rounded-lg hover:bg-zinc-800 transition-colors hover:border-zinc-800"
-                        href="/">กลับหน้าหลัก</a>
+                        href="/">กลับหน้าหลัก</Link>
             </div>
         </main>
     )

@@ -1,4 +1,4 @@
-import { Facebook, Twitter, Instagram, Youtube } from "lucide-react";
+import { Facebook, Instagram, Youtube } from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
@@ -45,7 +45,7 @@ export default function Footer() {
 
       {/* Bottom Bar */}
       <div className="mt-6 border-t border-gray-700 px-2 pt-4 text-center text-[15px] text-gray-500">
-        © {new Date().getFullYear()} <b>DFI.Fund</b> All rights reserved.
+        &copy; {new Date().getFullYear()} <b>DFI.Fund</b> All rights reserved.
       </div>
     </footer>
   );
