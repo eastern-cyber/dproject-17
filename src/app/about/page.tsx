@@ -1,4 +1,5 @@
 import Footer from '@/components/Footer'
+import Link from 'next/link'
 import React from 'react'
 
 export default function About() {
@@ -80,9 +81,9 @@ export default function About() {
           <Footer />
         </div>
         <div className='mt-4'>
-                <a 
+                <Link 
                     className="flex flex-col px-4 py-3 mt-2 border border-zinc-500 rounded-lg hover:bg-zinc-800 transition-colors hover:border-zinc-800"
-                    href="/">กลับหน้าหลัก</a>
+                    href="/">กลับหน้าหลัก</Link>
         </div>
     </div>
   )

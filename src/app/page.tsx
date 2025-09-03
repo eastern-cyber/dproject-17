@@ -2,19 +2,15 @@
 
 import Image from "next/image";
 import { ConnectButton, MediaRenderer, useActiveAccount, useReadContract,darkTheme } from "thirdweb/react";
-// import thirdwebIcon from "@public/thirdweb.svg";
 import dprojectIcon from "../../public/DProjectLogo_650x600.svg";
-import { chain } from "../lib/chain";
-import { client } from "../lib/client";
 import { getContractMetadata } from "thirdweb/extensions/common";
 import { contract } from "../../utils/contracts";
 import Link from "next/link";
 import WalletConnect from "@/components/WalletConnect";
 import Footer from "@/components/Footer";
 
-
 export default function Home() {
-  const account = useActiveAccount ();
+  const account = useActiveAccount();
 
   const { data: contractMetadata } = useReadContract(
     getContractMetadata,
@@ -26,10 +22,12 @@ export default function Home() {
   if(!account)
   {
     return (
-      <main className="p-4 pb-10 min-h-[100vh] flex items-center justify-center container max-w-screen-lg mx-auto">
-        <div className="py-20">
+      <main className="min-h-screen w-full flex flex-col">
+        <div className="flex-grow flex flex-col items-center justify-center py-20 w-full">
           <Header />
-          <ThirdwebResources />
+          <div className="my-8 w-full flex justify-center">
+            <ThirdwebResources />
+          </div>
           <Footer />
         </div>
       </main>
@@ -37,82 +35,51 @@ export default function Home() {
   }
 
   return (
-    <div style={{
-      display: "flex",
-      margin: "30px",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      height: "100%",
-    }}>
-      <div style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "20px",
-        border: "1px solid #333",
-        borderRadius: "8px",
-      }}>
-        <Image
-          src={dprojectIcon}
-          alt=""
-          className="size-[150px] md:size-[150px] mb-6"
-          style={{
-            filter: "drop-shadow(0px 0px 24px #a726a9a8)",
-          }}
-        />
-        <WalletConnect />
-        {contractMetadata && (
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "20px",
-            marginTop: "5px",
-          }}>
-            <div style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center", 
-              justifyContent: "center",
-              marginTop: "5px",
-            }}>
-            <p style={{ 
-              fontSize: "20px",
-              fontWeight: "bold",
-          }}>
-          ยืนดีต้อนรับสู่ DProject
-          </p>
-            <p style={{
-              fontSize: "16px",
-              marginTop: "20px",
-            }}>
-              <a 
-                href="/member-area"
-                className="flex flex-col border bg-zinc-800 border-zinc-500 mt-3 px-4 py-3 rounded-lg hover:bg-red-600 transition-colors hover:border-zinc-300"
-              >
-                <p className="text-[18px] break-words tex-center">เข้าสู่พื้นที่สมาชิก</p>
-              </a>
-            </p>
+    <div className="min-h-screen w-full flex flex-col">
+      <div className="flex-grow flex flex-col items-center justify-center p-5 w-full">
+        <div className="flex flex-col items-center justify-center p-5 border border-gray-300 rounded-lg max-w-md w-full">
+          <Image
+            src={dprojectIcon}
+            alt=""
+            className="size-[150px] md:size-[150px] mb-6"
+            style={{
+              filter: "drop-shadow(0px 0px 24px #a726a9a8)",
+            }}
+          />
+          <WalletConnect />
+          {contractMetadata && (
+            <div className="flex flex-col items-center justify-center p-5 mt-2 w-full">
+              <div className="flex flex-col items-center justify-center mt-2 w-full">
+                <p className="text-xl font-bold text-center">
+                  ยินดีต้อนรับสู่ DProject
+                </p>
+                <p className="mt-5 w-full">
+                  <a 
+                    href="/member-area"
+                    className="flex flex-col border bg-zinc-800 border-zinc-500 px-4 py-3 rounded-lg hover:bg-red-600 transition-colors hover:border-zinc-300 w-full text-center"
+                  >
+                    <p className="text-lg break-words">เข้าสู่พื้นที่สมาชิก</p>
+                  </a>
+                </p>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
-      <div style={{margin:"30px"}}>
-        <ThirdwebResources />
-      </div>
-      <div className='px-1 w-full'>
-        <Footer />
+          )}
+        </div>
+        <div className="mt-8 w-full max-w-4xl flex justify-center">
+          <ThirdwebResources />
+        </div>
+        <div className="mt-8 w-full max-w-4xl">
+          <Footer />
+        </div>
       </div>
     </div>
   )
 }
+
 function Header() {
   return (
-    <header className="flex flex-col items-center md:mb-5">
-          <Link href="/" passHref>
+    <header className="flex flex-col items-center w-full mb-8">
+      <Link href="/" passHref>
         <Image
           src={dprojectIcon}
           alt="DProject"
@@ -122,8 +89,8 @@ function Header() {
           }}
         />
       </Link>
-      <p>&nbsp;&nbsp;</p>
-      <h2 className="text-2xl md:text-6xl font-semibold md:font-bold tracking-tighter mb-6 text-zinc-100">
+      <p className="my-4"></p>
+      <h2 className="text-2xl md:text-6xl font-semibold md:font-bold tracking-tighter mb-6 text-zinc-100 text-center">
         <span className="inline-block text-blue-500"> DProject </span>
         &nbsp;&nbsp;&nbsp;
         <span className="inline-block -skew-x-6 text-white"> Login </span>
@@ -132,24 +99,24 @@ function Header() {
         &nbsp;
         <span className="inline-block -skew-x-6 text-white"> Register </span>
       </h2>
-      <p className="text-[24px] text-center text-zinc-200 md:mb-25 text-base m-2 break-word">
-        Version 1.2.16
+      <p className="text-xl text-center text-zinc-200 mb-6">
+        Version 1.2.17
       </p>
-      <p className="text-center text-zinc-300 text-base m-8 break-word">
+      <p className="text-center text-zinc-300 text-base mb-8 max-w-2xl px-4">
         ล็อกอินด้วยอีเมลล์{" "}
         <code className="bg-zinc-800 text-zinc-300 px-2 rounded py-1 text-sm mx-1">
           OTP
         </code>{" "}
         e-mail Login
       </p>
-          <WalletConnect />
-      </header>
+      <WalletConnect />
+    </header>
   );
 }
 
 function ThirdwebResources() {
   return (
-    <div className="grid gap-4 lg:grid-cols-3 justify-center">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-6xl px-4">
       <ArticleCard
         title="เกี่ยวกับโครงการ DProject"
         href="/about"
@@ -167,24 +134,6 @@ function ThirdwebResources() {
         href="/timeline"
         description="แสดงรายละเอียดไทม์ไลน์และความคืบหน้าของโครงการ"
       />
-
-      {/* <ArticleCard
-        title="รายการทรัพย์สิน"
-        href="/assets"
-        description="แสดงรายการทรัพย์สินที่ท่านถือครอง"
-      />
-
-      <ArticleCard
-        title="ต้นแบบ Application ก๊อกๆๆ"
-        href="https://3k.aseanquality.com/"
-        description="3K หรือ Kok Kok Kok จะต่อยอดจาก SocialApp ยอดนิยม"
-      />
-
-      <ArticleCard
-        title="DProject Timeline"
-        href="/timeline"
-        description="แสดงรายละเอียดไทม์ไลน์และความคืบหน้าของโครงการ"
-      /> */}
     </div>
   );
 }
@@ -197,8 +146,7 @@ function ArticleCard(props: {
   return (
     <a
       href={props.href + "?utm_source=next-template"}
-      // target="_blank"
-      className="flex flex-col border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 transition-colors hover:border-zinc-700"
+      className="flex flex-col border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 transition-colors hover:border-zinc-700 h-full"
     >
       <article>
         <h2 className="text-lg font-semibold mb-2">{props.title}</h2>
