@@ -1,103 +1,209 @@
+"use client";
+
 import Image from "next/image";
+import { ConnectButton, MediaRenderer, useActiveAccount, useReadContract,darkTheme } from "thirdweb/react";
+// import thirdwebIcon from "@public/thirdweb.svg";
+import dprojectIcon from "../../public/DProjectLogo_650x600.svg";
+import { chain } from "../lib/chain";
+import { client } from "../lib/client";
+import { getContractMetadata } from "thirdweb/extensions/common";
+import { contract } from "../../utils/contracts";
+import Link from "next/link";
+import WalletConnect from "@/components/WalletConnect";
+import Footer from "@/components/Footer";
+
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const account = useActiveAccount ();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="/admin/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Users Table
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="./admin/dproject-users/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            dProject Users
-          </a>
+  const { data: contractMetadata } = useReadContract(
+    getContractMetadata,
+    {
+      contract: contract,
+    }
+  );
+
+  if(!account)
+  {
+    return (
+      <main className="p-4 pb-10 min-h-[100vh] flex items-center justify-center container max-w-screen-lg mx-auto">
+        <div className="py-20">
+          <Header />
+          <ThirdwebResources />
+          <Footer />
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+    );
+  }
+
+  return (
+    <div style={{
+      display: "flex",
+      margin: "30px",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      height: "100%",
+    }}>
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "20px",
+        border: "1px solid #333",
+        borderRadius: "8px",
+      }}>
+        <Image
+          src={dprojectIcon}
+          alt=""
+          className="size-[150px] md:size-[150px] mb-6"
+          style={{
+            filter: "drop-shadow(0px 0px 24px #a726a9a8)",
+          }}
+        />
+        <WalletConnect />
+        {contractMetadata && (
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+            marginTop: "5px",
+          }}>
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center", 
+              justifyContent: "center",
+              marginTop: "5px",
+            }}>
+            <p style={{ 
+              fontSize: "20px",
+              fontWeight: "bold",
+          }}>
+          ยืนดีต้อนรับสู่ DProject
+          </p>
+            <p style={{
+              fontSize: "16px",
+              marginTop: "20px",
+            }}>
+              <a 
+                href="/member-area"
+                className="flex flex-col border bg-zinc-800 border-zinc-500 mt-3 px-4 py-3 rounded-lg hover:bg-red-600 transition-colors hover:border-zinc-300"
+              >
+                <p className="text-[18px] break-words tex-center">เข้าสู่พื้นที่สมาชิก</p>
+              </a>
+            </p>
+            </div>
+          </div>
+        )}
+      </div>
+      <div style={{margin:"30px"}}>
+        <ThirdwebResources />
+      </div>
+      <div className='px-1 w-full'>
+        <Footer />
+      </div>
     </div>
+  )
+}
+function Header() {
+  return (
+    <header className="flex flex-col items-center md:mb-5">
+          <Link href="/" passHref>
+        <Image
+          src={dprojectIcon}
+          alt="DProject"
+          className="size-[150px] md:size-[150px]"
+          style={{
+            filter: "drop-shadow(0px 0px 24px #a726a9a8)",
+          }}
+        />
+      </Link>
+      <p>&nbsp;&nbsp;</p>
+      <h2 className="text-2xl md:text-6xl font-semibold md:font-bold tracking-tighter mb-6 text-zinc-100">
+        <span className="inline-block text-blue-500"> DProject </span>
+        &nbsp;&nbsp;&nbsp;
+        <span className="inline-block -skew-x-6 text-white"> Login </span>
+        &nbsp;
+        <span className="text-zinc-300 inline-block mx-1"> + </span>
+        &nbsp;
+        <span className="inline-block -skew-x-6 text-white"> Register </span>
+      </h2>
+      <p className="text-[24px] text-center text-zinc-200 md:mb-25 text-base m-2 break-word">
+        Version 1.2.16
+      </p>
+      <p className="text-center text-zinc-300 text-base m-8 break-word">
+        ล็อกอินด้วยอีเมลล์{" "}
+        <code className="bg-zinc-800 text-zinc-300 px-2 rounded py-1 text-sm mx-1">
+          OTP
+        </code>{" "}
+        e-mail Login
+      </p>
+          <WalletConnect />
+      </header>
+  );
+}
+
+function ThirdwebResources() {
+  return (
+    <div className="grid gap-4 lg:grid-cols-3 justify-center">
+      <ArticleCard
+        title="เกี่ยวกับโครงการ DProject"
+        href="/about"
+        description="More detail about DProject"
+      />
+
+      <ArticleCard
+        title="ต้นแบบ Application ก๊อกๆๆ"
+        href="https://3k.aseanquality.com/"
+        description="3K หรือ Kok Kok Kok จะต่อยอดจาก SocialApp ยอดนิยม"
+      />
+
+      <ArticleCard
+        title="DProject Timeline"
+        href="/timeline"
+        description="แสดงรายละเอียดไทม์ไลน์และความคืบหน้าของโครงการ"
+      />
+
+      {/* <ArticleCard
+        title="รายการทรัพย์สิน"
+        href="/assets"
+        description="แสดงรายการทรัพย์สินที่ท่านถือครอง"
+      />
+
+      <ArticleCard
+        title="ต้นแบบ Application ก๊อกๆๆ"
+        href="https://3k.aseanquality.com/"
+        description="3K หรือ Kok Kok Kok จะต่อยอดจาก SocialApp ยอดนิยม"
+      />
+
+      <ArticleCard
+        title="DProject Timeline"
+        href="/timeline"
+        description="แสดงรายละเอียดไทม์ไลน์และความคืบหน้าของโครงการ"
+      /> */}
+    </div>
+  );
+}
+
+function ArticleCard(props: {
+  title: string;
+  href: string;
+  description: string;
+}) {
+  return (
+    <a
+      href={props.href + "?utm_source=next-template"}
+      // target="_blank"
+      className="flex flex-col border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 transition-colors hover:border-zinc-700"
+    >
+      <article>
+        <h2 className="text-lg font-semibold mb-2">{props.title}</h2>
+        <p className="text-sm text-zinc-400">{props.description}</p>
+      </article>
+    </a>
   );
 }
